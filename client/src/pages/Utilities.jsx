@@ -229,16 +229,16 @@ export default function Utilities() {
               <tbody>
                 {shownReadings.map((r) => (
                   <tr key={r.id}>
-                    <td>{fmtDate(r.reading_date)}</td>
-                    <td>{r.property_name}</td><td>{r.unit_number}</td>
-                    <td>{r.utility === 'water' ? '💧 Water' : '⚡ Electricity'}</td>
-                    <td className="num small">{r.previous_reading}</td>
-                    <td className="num small">{r.current_reading}</td>
-                    <td className="num small">{r.consumption}</td>
-                    <td className="num small">{r.rate_per_unit}</td>
-                    <td className="num">{ksh2(r.amount)}</td>
-                    <td><span className={`badge ${r.status === 'paid' ? 'ok' : 'warn'}`}>{r.status}</span></td>
-                    <td>
+                    <td data-label="Date">{fmtDate(r.reading_date)}</td>
+                    <td data-label="Property">{r.property_name}</td><td data-label="Unit">{r.unit_number}</td>
+                    <td data-label="Utility">{r.utility === 'water' ? '💧 Water' : '⚡ Electricity'}</td>
+                    <td data-label="Previous" className="num small">{r.previous_reading}</td>
+                    <td data-label="Current" className="num small">{r.current_reading}</td>
+                    <td data-label="Used" className="num small">{r.consumption}</td>
+                    <td data-label="Rate" className="num small">{r.rate_per_unit}</td>
+                    <td data-label="Amount" className="num">{ksh2(r.amount)}</td>
+                    <td data-label="Status"><span className={`badge ${r.status === 'paid' ? 'ok' : 'warn'}`}>{r.status}</span></td>
+                    <td data-label="">
                       <div className="inline-chips">
                         {r.status === 'pending' && <button className="btn small secondary" onClick={() => setStatus(r, 'paid')}>Mark paid</button>}
                         <button className="btn small secondary" onClick={() => openEdit(r)}>Edit</button>

@@ -139,12 +139,12 @@ export default function Users() {
               <tbody>
                 {shown.map((u) => (
                   <tr key={u.id}>
-                    <td><strong>{u.username}</strong></td>
-                    <td>{u.full_name || '—'}</td>
-                    <td><span className={`badge ${u.role === 'admin' ? 'accent' : 'neutral'}`}>{u.role}</span></td>
-                    <td>{u.active ? <span className="badge ok">active</span> : <span className="badge danger">disabled</span>}</td>
-                    <td className="muted small">{u.created_at}</td>
-                    <td>
+                    <td data-label="Username"><strong>{u.username}</strong></td>
+                    <td data-label="Full name">{u.full_name || '—'}</td>
+                    <td data-label="Role"><span className={`badge ${u.role === 'admin' ? 'accent' : 'neutral'}`}>{u.role}</span></td>
+                    <td data-label="Status">{u.active ? <span className="badge ok">active</span> : <span className="badge danger">disabled</span>}</td>
+                    <td data-label="Created" className="muted small">{u.created_at}</td>
+                    <td data-label="">
                       <div className="inline-chips">
                         <button className="btn small secondary" onClick={() => openEdit(u)}>Edit</button>
                         {u.active ? (
@@ -157,7 +157,7 @@ export default function Users() {
                     </td>
                   </tr>
                 ))}
-                {shown.length === 0 && <tr><td colSpan="6" className="muted">No users match your filters.</td></tr>}
+                {shown.length === 0 && <tr><td data-label="Username" colSpan="6" className="muted">No users match your filters.</td></tr>}
               </tbody>
             </table>
           </div>

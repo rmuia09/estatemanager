@@ -156,7 +156,7 @@ export default function Renewals() {
                   {later.map((l) => (
                     <LeaseRow key={l.id} l={l} busy={busy} onNotice={sendNotice} onEdit={openEdit} onDelete={setConfirmDel} showRenew={false} badgeFor={badgeFor} ksh={ksh} fmtDate={fmtDate} />
                   ))}
-                  {later.length === 0 && <tr><td colSpan="10" className="muted">No other active leases.</td></tr>}
+                  {later.length === 0 && <tr><td data-label="Property" colSpan="10" className="muted">No other active leases.</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -291,14 +291,14 @@ function RenewalTable({ rows, busy, onNotice, onRenew, onEdit, onTerminate, onDe
         <tbody>
           {rows.map((l) => (
             <tr key={l.id}>
-              <td>{l.property_name}</td><td><strong>{l.unit_number}</strong></td>
-              <td>{l.tenant_name}</td><td className="small muted">{l.phone}</td>
-              <td className="num">{ksh(l.monthly_rent)}</td>
-              <td className="small">{fmtDate(l.end_date)}</td>
-              <td>{badgeFor(l.days_left)}</td>
-              <td>{l.notice_sent ? <span className="badge ok">sent</span> : <span className="badge warn">pending</span>}</td>
-              <td className="num"><strong>{ksh(l.new_rent_10pct)}</strong></td>
-              <td style={{ whiteSpace: 'nowrap' }}>
+              <td data-label="Property">{l.property_name}</td><td data-label="Unit"><strong>{l.unit_number}</strong></td>
+              <td data-label="Tenant">{l.tenant_name}</td><td data-label="Phone" className="small muted">{l.phone}</td>
+              <td data-label="Current rent" className="num">{ksh(l.monthly_rent)}</td>
+              <td data-label="End date" className="small">{fmtDate(l.end_date)}</td>
+              <td data-label="Time left">{badgeFor(l.days_left)}</td>
+              <td data-label="Notice">{l.notice_sent ? <span className="badge ok">sent</span> : <span className="badge warn">pending</span>}</td>
+              <td data-label="New rent (+10%)" className="num"><strong>{ksh(l.new_rent_10pct)}</strong></td>
+              <td data-label="" style={{ whiteSpace: 'nowrap' }}>
                 <div className="inline-chips">
                   {!l.notice_sent && <button className="btn small secondary" disabled={busy === 'notice' + l.id} onClick={() => onNotice(l)}>Send notice</button>}
                   <button className="btn small secondary" onClick={() => onEdit(l)}>Edit</button>

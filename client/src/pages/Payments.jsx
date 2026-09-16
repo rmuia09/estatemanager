@@ -172,14 +172,14 @@ export default function Payments() {
               <tbody>
                 {shown.map((p) => (
                   <tr key={p.id}>
-                    <td>{fmtDate(p.payment_date)}</td>
-                    <td>{p.property_name}</td>
-                    <td>{p.unit_number}</td>
-                    <td>{p.tenant_name || '—'}</td>
-                    <td className="small">{p.period}</td>
-                    <td className="small">{p.method}</td>
-                    <td className="num">{ksh(p.amount)}</td>
-                    <td>
+                    <td data-label="Date">{fmtDate(p.payment_date)}</td>
+                    <td data-label="Property">{p.property_name}</td>
+                    <td data-label="Unit">{p.unit_number}</td>
+                    <td data-label="Tenant">{p.tenant_name || '—'}</td>
+                    <td data-label="Period" className="small">{p.period}</td>
+                    <td data-label="Method" className="small">{p.method}</td>
+                    <td data-label="Amount" className="num">{ksh(p.amount)}</td>
+                    <td data-label="">
                       <div className="inline-chips">
                         <button className="btn small secondary" onClick={() => openEdit(p)}>Edit</button>
                         <button className="btn small danger" onClick={() => setConfirmDel(p)}>Del</button>
@@ -232,31 +232,31 @@ export default function Payments() {
                 <tbody>
                   {ledgerRows.map(({ tenant, lease }, i) => (
                     <tr key={i}>
-                      <td>
+                      <td data-label="Tenant">
                         <strong>{tenant.tenant_name}</strong>
                         <div className="muted small">{tenant.phone || ''}</div>
                       </td>
-                      <td>{lease.unit_number}</td>
-                      <td className="num">{ksh(lease.monthly_rent)}</td>
+                      <td data-label="Unit">{lease.unit_number}</td>
+                      <td data-label="Rent / mo" className="num">{ksh(lease.monthly_rent)}</td>
                       {ledger.months.map((m) => {
                         const cell = lease.months.find((x) => x.month === m)
                         const paid = cell ? cell.paid : 0
                         const out = cell ? cell.outstanding : 0
                         return (
-                          <td key={m} className="num">
+                          <td data-label={fmtMonth(m)} key={m} className="num">
                             {ksh(paid)}
                             {out > 0 && <div className="muted small" style={{ color: 'var(--danger)' }}>−{ksh(out)}</div>}
                           </td>
                         )
                       })}
-                      <td className="num"><strong>{ksh(lease.total_paid)}</strong></td>
-                      <td className="num muted">{ksh(lease.total_expected)}</td>
-                      <td className="num" style={{ color: lease.total_outstanding > 0 ? 'var(--danger)' : 'var(--ok)' }}>
+                      <td data-label="Total paid" className="num"><strong>{ksh(lease.total_paid)}</strong></td>
+                      <td data-label="Expected" className="num muted">{ksh(lease.total_expected)}</td>
+                      <td data-label="Outstanding" className="num" style={{ color: lease.total_outstanding > 0 ? 'var(--danger)' : 'var(--ok)' }}>
                         {ksh(lease.total_outstanding)}
                       </td>
                     </tr>
                   ))}
-                  {ledgerRows.length === 0 && <tr><td colSpan={8 + ledger.months.length} className="muted">No active leases in this period.</td></tr>}
+                  {ledgerRows.length === 0 && <tr><td data-label="Tenant" colSpan={8 + ledger.months.length} className="muted">No active leases in this period.</td></tr>}
                 </tbody>
               </table>
             </div>

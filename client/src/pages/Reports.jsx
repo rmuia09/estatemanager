@@ -179,11 +179,11 @@ export default function Reports() {
                 <tbody>
                   {summary.periods.map((w) => (
                     <tr key={w.key} style={{ background: selected === w.key ? 'var(--accent-soft)' : undefined }}>
-                      <td>{period === 'monthly' ? monthLabel(w.key) : fmtDateSmart(w.key)}</td>
-                      {period === 'weekly' && <td className="muted">{fmtDateSmart(w.end)}</td>}
-                      <td className="num">{w.txns}</td>
-                      <td className="num"><strong>{ksh(w.total)}</strong></td>
-                      <td>
+                      <td data-label="Period">{period === 'monthly' ? monthLabel(w.key) : fmtDateSmart(w.key)}</td>
+                      {period === 'weekly' && <td data-label="Week ends" className="muted">{fmtDateSmart(w.end)}</td>}
+                      <td data-label="Transactions" className="num">{w.txns}</td>
+                      <td data-label="Total" className="num"><strong>{ksh(w.total)}</strong></td>
+                      <td data-label="">
                         <button className="btn small secondary" onClick={() => { setSelected(selected === w.key ? null : w.key); loadDetail(w.key) }}>
                           {selected === w.key ? 'Hide' : 'Detail'}
                         </button>
@@ -214,12 +214,12 @@ export default function Reports() {
                   <tbody>
                     {(detail.byProperty || []).map((b) => (
                       <tr key={b.property}>
-                        <td>{b.property}</td>
-                        <td className="num">{b.txns}</td>
-                        <td className="num">{ksh(b.total)}</td>
+                        <td data-label="Property">{b.property}</td>
+                        <td data-label="Payments" className="num">{b.txns}</td>
+                        <td data-label="Amount" className="num">{ksh(b.total)}</td>
                       </tr>
                     ))}
-                    {(detail.byProperty || []).length === 0 && <tr><td colSpan="3" className="muted">No payments in this period.</td></tr>}
+                    {(detail.byProperty || []).length === 0 && <tr><td data-label="Property" colSpan="3" className="muted">No payments in this period.</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -230,15 +230,15 @@ export default function Reports() {
                   <tbody>
                     {(detail.details || []).map((d, i) => (
                       <tr key={i}>
-                        <td>{fmtDateSmart(d.payment_date)}</td>
-                        <td>{d.property_name}</td>
-                        <td>{d.unit_number}</td>
-                        <td>{d.tenant_name || '—'}</td>
-                        <td>{d.method}</td>
-                        <td className="num">{ksh(d.amount)}</td>
+                        <td data-label="Date">{fmtDateSmart(d.payment_date)}</td>
+                        <td data-label="Property">{d.property_name}</td>
+                        <td data-label="Unit">{d.unit_number}</td>
+                        <td data-label="Tenant">{d.tenant_name || '—'}</td>
+                        <td data-label="Method">{d.method}</td>
+                        <td data-label="Amount" className="num">{ksh(d.amount)}</td>
                       </tr>
                     ))}
-                    {(detail.details || []).length === 0 && <tr><td colSpan="6" className="muted">No payments in this period.</td></tr>}
+                    {(detail.details || []).length === 0 && <tr><td data-label="Date" colSpan="6" className="muted">No payments in this period.</td></tr>}
                   </tbody>
                 </table>
               </div>

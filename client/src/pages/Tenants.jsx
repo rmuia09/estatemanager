@@ -117,12 +117,12 @@ export default function Tenants() {
               <tbody>
                 {shown.map((t) => (
                   <tr key={t.id}>
-                    <td><strong>{t.name}</strong></td>
-                    <td>{t.phone || '—'}</td>
-                    <td className="muted">{t.email || '—'}</td>
-                    <td className="num">{t.active_leases > 0 ? <span className="badge ok">{t.active_leases}</span> : <span className="muted">0</span>}</td>
-                    <td className="num">{t.total_leases}</td>
-                    <td>
+                    <td data-label="Name"><strong>{t.name}</strong></td>
+                    <td data-label="Phone">{t.phone || '—'}</td>
+                    <td data-label="Email" className="muted">{t.email || '—'}</td>
+                    <td data-label="Active leases" className="num">{t.active_leases > 0 ? <span className="badge ok">{t.active_leases}</span> : <span className="muted">0</span>}</td>
+                    <td data-label="Total leases" className="num">{t.total_leases}</td>
+                    <td data-label="">
                       <div className="inline-chips">
                         <button className="btn small secondary" onClick={() => openEdit(t)}>Edit</button>
                         <button className="btn small danger" disabled={t.total_leases > 0} title={t.total_leases > 0 ? 'Has linked leases' : ''} onClick={() => setConfirmDel(t)}>Delete</button>
@@ -130,7 +130,7 @@ export default function Tenants() {
                     </td>
                   </tr>
                 ))}
-                {shown.length === 0 && <tr><td colSpan="6" className="muted">No tenants match your filters.</td></tr>}
+                {shown.length === 0 && <tr><td data-label="Name" colSpan="6" className="muted">No tenants match your filters.</td></tr>}
               </tbody>
             </table>
           </div>

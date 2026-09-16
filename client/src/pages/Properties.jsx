@@ -96,12 +96,12 @@ export default function Properties() {
               <tbody>
                 {shown.map((p) => (
                   <tr key={p.id}>
-                    <td><strong>{p.name}</strong></td>
-                    <td className="muted">{p.location || '—'}</td>
-                    <td className="num">{p.unit_count}</td>
-                    <td className="num"><span className="badge ok">{p.occupied_count}</span></td>
-                    <td className="num"><span className="badge neutral">{p.unit_count - p.occupied_count}</span></td>
-                    <td>
+                    <td data-label="Name"><strong>{p.name}</strong></td>
+                    <td data-label="Location" className="muted">{p.location || '—'}</td>
+                    <td data-label="Units" className="num">{p.unit_count}</td>
+                    <td data-label="Occupied" className="num"><span className="badge ok">{p.occupied_count}</span></td>
+                    <td data-label="Vacant" className="num"><span className="badge neutral">{p.unit_count - p.occupied_count}</span></td>
+                    <td data-label="">
                       <div className="inline-chips">
                         <button className="btn small secondary" onClick={() => openEdit(p)}>Edit</button>
                         <button className="btn small danger" onClick={() => setConfirmDel(p)}>Delete</button>
@@ -109,7 +109,7 @@ export default function Properties() {
                     </td>
                   </tr>
                 ))}
-                {shown.length === 0 && <tr><td colSpan="6" className="muted">No properties match your filters.</td></tr>}
+                {shown.length === 0 && <tr><td data-label="Name" colSpan="6" className="muted">No properties match your filters.</td></tr>}
               </tbody>
             </table>
           </div>

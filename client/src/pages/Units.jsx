@@ -128,15 +128,15 @@ export default function Units() {
               <tbody>
                 {shown.map((u) => (
                   <tr key={u.id}>
-                    <td>{u.property_name}</td>
-                    <td><strong>{u.unit_number}</strong></td>
-                    <td className="muted">{u.unit_type}</td>
-                    <td>{u.tenant_name || <span className="muted">—</span>}</td>
-                    <td className="muted small">{u.tenant_phone || '—'}</td>
-                    <td className="num">{ksh(u.monthly_rent)}</td>
-                    <td className="small">{u.lease_end ? fmtDate(u.lease_end) : '—'}</td>
-                    <td><span className={`badge ${u.status === 'occupied' ? 'ok' : 'neutral'}`}>{u.status}</span></td>
-                    <td>
+                    <td data-label="Property">{u.property_name}</td>
+                    <td data-label="Unit"><strong>{u.unit_number}</strong></td>
+                    <td data-label="Type" className="muted">{u.unit_type}</td>
+                    <td data-label="Tenant">{u.tenant_name || <span className="muted">—</span>}</td>
+                    <td data-label="Contact" className="muted small">{u.tenant_phone || '—'}</td>
+                    <td data-label="Rent / mo" className="num">{ksh(u.monthly_rent)}</td>
+                    <td data-label="Lease end" className="small">{u.lease_end ? fmtDate(u.lease_end) : '—'}</td>
+                    <td data-label="Status"><span className={`badge ${u.status === 'occupied' ? 'ok' : 'neutral'}`}>{u.status}</span></td>
+                    <td data-label="">
                       <div className="inline-chips">
                         {u.status === 'occupied' ? (
                           <>
@@ -152,7 +152,7 @@ export default function Units() {
                     </td>
                   </tr>
                 ))}
-                {shown.length === 0 && <tr><td colSpan="9" className="muted">No units match these filters.</td></tr>}
+                {shown.length === 0 && <tr><td data-label="Property" colSpan="9" className="muted">No units match these filters.</td></tr>}
               </tbody>
             </table>
           </div>

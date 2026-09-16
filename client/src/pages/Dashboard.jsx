@@ -86,15 +86,15 @@ export default function Dashboard({ onNavigate }) {
               <tbody>
                 {recentPayments.map((p) => (
                   <tr key={p.id}>
-                    <td>{fmtDate(p.payment_date)}</td>
-                    <td>{p.property_name}</td>
-                    <td>{p.unit_number}</td>
-                    <td>{p.tenant_name || '—'}</td>
-                    <td>{p.method}</td>
-                    <td className="num">{ksh(p.amount)}</td>
+                    <td data-label="Date">{fmtDate(p.payment_date)}</td>
+                    <td data-label="Property">{p.property_name}</td>
+                    <td data-label="Unit">{p.unit_number}</td>
+                    <td data-label="Tenant">{p.tenant_name || '—'}</td>
+                    <td data-label="Method">{p.method}</td>
+                    <td data-label="Amount" className="num">{ksh(p.amount)}</td>
                   </tr>
                 ))}
-              {recentPayments.length === 0 && <tr><td colSpan="6" className="muted">No recent payments match.</td></tr>}
+              {recentPayments.length === 0 && <tr><td data-label="Date" colSpan="6" className="muted">No recent payments match.</td></tr>}
               </tbody>
             </table>
           </div>

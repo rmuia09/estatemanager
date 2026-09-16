@@ -59,12 +59,12 @@ export default function Activity() {
                 <tbody>
                   {shown.map((e) => (
                     <tr key={e.id}>
-                      <td className="small muted activity-when">{e.created_at || ''}</td>
-                      <td className="small">{e.username || 'system'}</td>
-                      <td><span className="badge neutral">{e.action}</span></td>
-                      <td className="small">{e.entity_type}{e.entity_id ? ` #${e.entity_id}` : ''}</td>
-                      <td className="small">{e.reason || '—'}</td>
-                      <td className="small muted">{e.details || ''}</td>
+                      <td data-label="When" className="small muted activity-when">{e.created_at || ''}</td>
+                      <td data-label="User" className="small">{e.username || 'system'}</td>
+                      <td data-label="Action"><span className="badge neutral">{e.action}</span></td>
+                      <td data-label="Entity" className="small">{e.entity_type}{e.entity_id ? ` #${e.entity_id}` : ''}</td>
+                      <td data-label="Reason" className="small">{e.reason || '—'}</td>
+                      <td data-label="Details" className="small muted">{e.details || ''}</td>
                     </tr>
                   ))}
                 </tbody>

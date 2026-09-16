@@ -102,13 +102,13 @@ export default function Notifications() {
               <tbody>
                 {shown.map((n) => (
                   <tr key={n.id} onClick={() => setExpanded(expanded === n.id ? null : n.id)} style={{ cursor: 'pointer' }}>
-                    <td className="small muted">{fmtDate(n.created_at)}</td>
-                    <td><span className="badge neutral">{n.channel === 'sms' ? '📱 SMS' : '✉️ Email'}</span></td>
-                    <td className="small">{n.kind}</td>
-                    <td className="small">{n.recipient}</td>
-                    <td className="small">{n.tenant_name || '—'}{n.unit_number ? ` · ${n.unit_number}` : ''}</td>
-                    <td>{statusBadge(n.status)}{n.message_id ? <div className="muted small">id {n.provider_message_id}</div> : null}</td>
-                    <td className="small">{expanded === n.id ? '▲' : '▼'}</td>
+                    <td data-label="Time" className="small muted">{fmtDate(n.created_at)}</td>
+                    <td data-label="Channel"><span className="badge neutral">{n.channel === 'sms' ? '📱 SMS' : '✉️ Email'}</span></td>
+                    <td data-label="Kind" className="small">{n.kind}</td>
+                    <td data-label="Recipient" className="small">{n.recipient}</td>
+                    <td data-label="Tenant / Unit" className="small">{n.tenant_name || '—'}{n.unit_number ? ` · ${n.unit_number}` : ''}</td>
+                    <td data-label="Status">{statusBadge(n.status)}{n.message_id ? <div className="muted small">id {n.provider_message_id}</div> : null}</td>
+                    <td data-label="" className="small">{expanded === n.id ? '▲' : '▼'}</td>
                   </tr>
                 ))}
               </tbody>
