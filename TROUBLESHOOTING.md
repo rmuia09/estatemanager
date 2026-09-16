@@ -5,6 +5,7 @@ Common problems, what they mean, and how to fix them.
 > **Related documents**
 > - [USER_MANUAL.md](./USER_MANUAL.md) — day-to-day usage of the system.
 > - [CONFIGURATION.md](./CONFIGURATION.md) — starting the app, accounts, and integrations.
+> - [DEPLOYMENT.md](./DEPLOYMENT.md) — hosting the system online for demos.
 
 ---
 

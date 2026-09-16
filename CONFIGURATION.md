@@ -4,7 +4,8 @@ Setup and configuration for **Estate Manager**: starting the app, user accounts 
 roles, system settings, and the SMS/email notification integrations.
 
 > **Related documents**
-> - [USER_MANUAL.md](./USER_MANUAL.md) — day-to-day usage of the system.
+> - [USER_MANUAL.md](./USER_MANUAL.md) — day-to-day use of the system.
+> - [DEPLOYMENT.md](./DEPLOYMENT.md) — hosting the system online for demos.
 > - [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) — fixing common problems.
 
 ---

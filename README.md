@@ -29,6 +29,7 @@ Change it after first login via the sidebar → **Change password**.
 ## Documentation
 - **[USER_MANUAL.md](./USER_MANUAL.md)** — day-to-day usage of every screen and task.
 - **[CONFIGURATION.md](./CONFIGURATION.md)** — starting the app, user accounts & roles, settings, SMS/email integrations, backup & reset.
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** — hosting the system online for demos (Render, free).
 - **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** — common problems and their fixes.
 
 ## Stack

@@ -7,6 +7,7 @@ month.
 > **Related documents**
 > - [CONFIGURATION.md](./CONFIGURATION.md) — starting the app, user accounts, SMS/email
 >   integrations and system settings.
+> - [DEPLOYMENT.md](./DEPLOYMENT.md) — putting the system online for demos (Render).
 > - [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) — what to do when something doesn't work.
 
 ---
