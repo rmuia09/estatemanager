@@ -58,16 +58,26 @@ export default function App() {
 
   useEffect(() => {
     if (!user) return
+    const lastActive = { at: Date.now() }
+    const logoutIfIdle = () => {
+      if (Date.now() - lastActive.at >= IDLE_TIMEOUT_MS) logout()
+    }
     const reset = () => {
+      lastActive.at = Date.now()
       clearTimeout(idleRef.current)
       idleRef.current = setTimeout(logout, IDLE_TIMEOUT_MS)
     }
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') logoutIfIdle()
+    }
     const events = ['pointerdown', 'pointermove', 'keydown', 'touchstart', 'scroll', 'wheel']
     events.forEach((e) => window.addEventListener(e, reset))
+    document.addEventListener('visibilitychange', onVisible)
     reset()
     return () => {
       clearTimeout(idleRef.current)
       events.forEach((e) => window.removeEventListener(e, reset))
+      document.removeEventListener('visibilitychange', onVisible)
     }
   }, [user])
 
