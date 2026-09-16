@@ -56,16 +56,19 @@ only source code is committed.
 
    | Setting | Value |
    |---|---|
-   | **Runtime** | **Node 18** ← safest; `better-sqlite3` ships prebuilt binaries for it |
-   | **Build command** | `npm run install:all && npm run build` |
+   | **Runtime** | Node 18 (pinned in `package.json` via `engines` — required for `better-sqlite3` prebuilt binaries) |
+   | **Build command** | leave the **default** `npm install; npm run build` — the root `build` script installs client deps (incl. `vite`) and builds automatically |
    | **Start command** | `node server/index.js` |
    | **Region** | nearest to your audience |
    | **Instance type** | **Free** |
 
 5. Click **Create Web Service** and wait for the build (≈2–4 minutes).
 
-> **Node runtime note:** if you use a newer Node, `better-sqlite3` may compile from
-> source and need build tools. Node 18 avoids that.
+> **Build gotchas (already handled):** Render's default build sets `NODE_ENV=production`,
+> which makes `npm install` skip devDependencies. The root `build` script therefore
+> installs server **and** client deps with `--include=dev` and then runs `vite build`
+> (vite is also a runtime dependency of the client). If a build still fails after a
+> change, use **Manual Deploy → Clear build cache & deploy** once to clear stale caches.
 
 ---
 

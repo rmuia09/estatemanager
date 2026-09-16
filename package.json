@@ -3,10 +3,13 @@
   "private": true,
   "version": "1.0.0",
   "description": "Rental management system: income, weekly reports, lease renewals, utilities",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "install:all": "npm --prefix server install --include=dev && npm --prefix client install --include=dev",
     "dev": "concurrently -n server,client -c green,cyan \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
-    "build": "npm --prefix client run build",
+    "build": "npm --prefix server install --include=dev && npm --prefix client install --include=dev && npm --prefix client run build",
     "seed": "npm --prefix server run seed"
   },
   "devDependencies": {
