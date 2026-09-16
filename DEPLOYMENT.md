@@ -44,6 +44,17 @@ gh repo create estate-manager --public --source=. --push
 `node_modules/`, `dist/` and `server/data/` (the SQLite files) are already gitignored —
 only source code is committed.
 
+> **GitHub push auth (known gotcha):** GitHub no longer accepts a password over `git push
+> https://…`. You'll get *"Invalid username or token. Password authentication is not
+> supported for Git operations."* Fix it with the GitHub CLI (one-time):
+> ```bash
+> gh auth login        # browser sign-in
+> gh auth setup-git    # make git use your token
+> git push -u origin main
+> ```
+> (Alternatively add an SSH key at github.com/settings/keys and
+> `git remote set-url origin git@github.com:<you>/estatemanager.git`.)
+
 ---
 
 ## 2. Create the free web service
