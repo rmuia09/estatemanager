@@ -15,6 +15,7 @@ month.
 ## Table of contents
 
 - [Quick reference — manual vs. automatic](#quick-reference--manual-vs-automatic)
+- [Using the app on a phone](#using-the-app-on-a-phone)
 1. [Signing in](#1-signing-in)
 2. [The dashboard](#2-the-dashboard)
 3. [Properties](#3-properties)
@@ -29,8 +30,10 @@ month.
 12. [Activity & audit trail](#12-activity--audit-trail)
 13. [Deleting records safely](#13-deleting-records-safely)
 
-The *left-hand sidebar* contains every section. Admin accounts also see a **Users** tab —
-see [CONFIGURATION.md](./CONFIGURATION.md#users--roles) for managing accounts.
+The *left-hand sidebar* contains every section (on a phone it becomes the **bottom tab
+bar** — see [Using the app on a phone](#using-the-app-on-a-phone)). Admin accounts also
+see a **Users** tab — see [CONFIGURATION.md](./CONFIGURATION.md#users--roles) for
+managing accounts.
 
 ---
 
@@ -80,6 +83,32 @@ see [CONFIGURATION.md](./CONFIGURATION.md#users--roles) for managing accounts.
 
 ---
 
+## Using the app on a phone
+
+The system is **mobile-friendly** (a progressive web app — PWA). Everything works in the
+phone's browser, and on screens narrower than ~760px the layout adapts:
+
+- **The menu is a bottom tab bar.** The left-hand sidebar moves to a horizontal row of
+  icon + label buttons fixed at the bottom of the screen. **Swipe the bar left/right** to
+  see all the sections; the active one is highlighted.
+- **Tables become cards.** Below ~600px every table row stacks into its own card with the
+  column name next to each value (e.g. `Rent/month — KES 8,500`), so nothing needs a
+  sideways scroll.
+- **Install it like an app (optional).**
+  - *iPhone/iPad (Safari):* open the site → tap **Share** → **Add to Home Screen** →
+    **Add**. It appears as an app icon that opens full-screen, without the browser bar.
+  - *Android (Chrome):* tap the **⋮** menu → **Install app**.
+  - Installing needs the site served over **HTTPS** — the deployed demo
+    ([DEPLOYMENT.md](./DEPLOYMENT.md)) is.
+
+> **I see only the dashboard — where are the menus?** If the site looks like the desktop
+> version (or the bottom tab bar is missing), Safari may be loading it in **desktop
+> mode** or showing a stale copy. In Safari tap **aA** → **Website Settings** → turn
+> **OFF "Request Desktop Website"** → **Done** → reload. If it still looks stale, clear
+> the site's data: **Settings → Safari → Advanced → Website Data** → delete the site.
+
+---
+
 ## 1. Signing in
 
 1. Open the web app (see CONFIGURATION.md → Starting the app) and enter your
@@ -96,6 +125,12 @@ Your **role** (admin or manager) decides what you see and can do — see
 ### Logging out
 Click **Logout** in the bottom-left panel. Logins and logouts are recorded in the
 [Activity](#12-activity--audit-trail) trail.
+
+### Automatic logout (idle timeout)
+For safety, the system signs you out automatically after **3 minutes without
+activity** (any click, keypress, tap, scroll or swiping). You'll be returned to the
+**Sign in** screen and can log straight back in. The server session also expires a
+maximum of **12 hours** after login regardless of use.
 
 ---
 

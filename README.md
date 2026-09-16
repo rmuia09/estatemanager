@@ -14,6 +14,7 @@ Rental management system for the estate (**Melon Park** — 32 units, **Block 13
 - **Audit trail** — every major action (login, creates, edits, deletes, payments, readings, renewals, notifications, settings changes) is logged with who, what, when and why.
 - **Reason-mandated deletes** — deleting any record requires an explanation + confirmation; the reason is stored in the audit trail.
 - **Full CRUD everywhere** — properties, units, tenants, leases, payments and meter readings can all be added, edited and deleted.
+- **Mobile-ready (PWA)** — installable from Safari/Chrome and works on any phone: the sidebar becomes a swipeable **bottom tab bar** below 760px and tables stack into labelled cards below 600px.
 
 ## Default login
 | Username | Password | Role |

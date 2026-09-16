@@ -22,6 +22,10 @@ async function req(path, opts = {}) {
   }
   const data = await res.json().catch(() => null)
   if (!res.ok) {
+    if (res.status === 401 && !path.endsWith('/auth/login')) {
+      setToken(null)
+      window.dispatchEvent(new Event('estate:unauthorized'))
+    }
     const err = new Error((data && data.error) || res.statusText)
     err.status = res.status
     throw err

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { api, getToken, setToken } from './api.js'
 import Login from './pages/Login.jsx'
 import Account from './pages/Account.jsx'
@@ -31,6 +31,8 @@ const TABS = [
   { id: 'settings', label: 'Settings', icon: '⚙️' }
 ]
 
+const IDLE_TIMEOUT_MS = 3 * 60 * 1000
+
 export default function App() {
   const [tab, setTab] = useState('dashboard')
   const [user, setUser] = useState(null)
@@ -51,6 +53,29 @@ export default function App() {
     setUser(null)
     setTab('dashboard')
   }
+
+  const idleRef = useRef(null)
+
+  useEffect(() => {
+    if (!user) return
+    const reset = () => {
+      clearTimeout(idleRef.current)
+      idleRef.current = setTimeout(logout, IDLE_TIMEOUT_MS)
+    }
+    const events = ['pointerdown', 'pointermove', 'keydown', 'touchstart', 'scroll', 'wheel']
+    events.forEach((e) => window.addEventListener(e, reset))
+    reset()
+    return () => {
+      clearTimeout(idleRef.current)
+      events.forEach((e) => window.removeEventListener(e, reset))
+    }
+  }, [user])
+
+  useEffect(() => {
+    const onUnauthorized = () => { setUser(null); setTab('dashboard') }
+    window.addEventListener('estate:unauthorized', onUnauthorized)
+    return () => window.removeEventListener('estate:unauthorized', onUnauthorized)
+  }, [])
 
   if (checking) {
     return <div className="login-wrap"><p className="loading">Loading…</p></div>

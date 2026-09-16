@@ -85,7 +85,9 @@ only source code is committed.
 
 ## 3. Access the live system
 
-- URL: **`https://estate-manager-demo.onrender.com`**
+- URL: **`https://estatemanager-wb32.onrender.com`** *(Render assigns each service a
+  random suffix — copy the exact URL from the Render **dashboard → Services** page →
+  Settings → **Public URL**)*
 - Login: **`admin`** / **`admin123`**
 - The database is created and **auto-seeded** with demo data (3 properties, 48 units,
   tenants, leases, payments) on the very first start — nothing to do.
@@ -104,6 +106,12 @@ Share the Render URL and walk people through it. Good demo flow:
 6. **Notifications** — reminders are recorded as **simulated** (no SMS/email credentials)
    so everyone can see the flow safely.
 7. **Activity** — the audit trail showing everything you just did.
+
+> **Demoing on a phone?** The deployed app is a **PWA** — on a phone the sidebar becomes
+> a **bottom tab bar** (swipe it sideways to scroll the tabs) and tables stack into
+> labelled cards. For the best look, on iPhone Safari tap **aA → Website Settings** and
+> make sure **"Request Desktop Website" is OFF**, then reload — otherwise the phone shows
+> the desktop layout. Optionally *Add to Home Screen* to run it as a full-screen app.
 
 ---
 
