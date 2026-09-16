@@ -1,0 +1,15 @@
+{
+  "name": "estate-manager",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Rental management system: income, weekly reports, lease renewals, utilities",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "dev": "concurrently -n server,client -c green,cyan \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "build": "npm --prefix client run build",
+    "seed": "npm --prefix server run seed"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
