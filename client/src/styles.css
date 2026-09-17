@@ -53,7 +53,9 @@ body {
 .brand h1 { font-size: 17px; line-height: 1.15; }
 .brand p { font-size: 11px; opacity: 0.75; margin-top: 2px; }
 
-nav { padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+nav { padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+nav::-webkit-scrollbar { width: 6px; }
+nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 3px; }
 .nav-item {
   display: flex; align-items: center; gap: 10px;
   background: transparent; border: 0; color: rgba(255,255,255,0.85);
