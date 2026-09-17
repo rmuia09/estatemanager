@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { api, useResource } from '../api.js'
 import { fmtDate } from '../format.js'
+import Paginator, { usePagination } from '../components/Paginator.jsx'
 
 const statusBadge = (s) =>
   s === 'sent' ? <span className="badge ok">sent</span>
@@ -37,6 +38,9 @@ export default function Notifications() {
       return true
     })
   }, [notifs, fKind, fStatus, fText])
+
+  const { page, setPage, totalItems, totalPages, pageItems } = usePagination(shown, 20)
+  useEffect(() => setPage(1), [fKind, fStatus, fText])
 
   return (
     <div>
@@ -100,7 +104,7 @@ export default function Notifications() {
                 <tr><th>Time</th><th>Channel</th><th>Kind</th><th>Recipient</th><th>Tenant / Unit</th><th>Status</th><th></th></tr>
               </thead>
               <tbody>
-                {shown.map((n) => (
+                {pageItems.map((n) => (
                   <tr key={n.id} onClick={() => setExpanded(expanded === n.id ? null : n.id)} style={{ cursor: 'pointer' }}>
                     <td data-label="Time" className="small muted">{fmtDate(n.created_at)}</td>
                     <td data-label="Channel"><span className="badge neutral">{n.channel === 'sms' ? '📱 SMS' : '✉️ Email'}</span></td>
@@ -113,6 +117,7 @@ export default function Notifications() {
                 ))}
               </tbody>
             </table>
+            <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
             {expanded && notifs && (() => {
               const n = notifs.find((x) => x.id === expanded)
               if (!n) return null

@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api, useResource } from '../api.js'
 import Modal from '../components/Modal.jsx'
 import ConfirmDelete from '../components/ConfirmDelete.jsx'
+import Paginator, { usePagination } from '../components/Paginator.jsx'
 
 export default function Tenants() {
   const { data: tenants, loading, error, refresh } = useResource('/api/tenants')
@@ -23,6 +24,9 @@ export default function Tenants() {
     }
     return true
   })
+
+  const { page, setPage, totalItems, totalPages, pageItems } = usePagination(shown, 20)
+  useEffect(() => setPage(1), [filterText, filterStatus])
 
   function openAdd() { setForm({ name: '', phone: '', email: '' }); setAdding(true) }
   function openEdit(t) { setForm({ name: t.name, phone: t.phone || '', email: t.email || '' }); setEditing(t) }
@@ -115,7 +119,7 @@ export default function Tenants() {
                 <tr><th>Name</th><th>Phone</th><th>Email</th><th className="num">Active leases</th><th className="num">Total leases</th><th></th></tr>
               </thead>
               <tbody>
-                {shown.map((t) => (
+                {pageItems.map((t) => (
                   <tr key={t.id}>
                     <td data-label="Name"><strong>{t.name}</strong></td>
                     <td data-label="Phone">{t.phone || '—'}</td>
@@ -133,6 +137,7 @@ export default function Tenants() {
                 {shown.length === 0 && <tr><td data-label="Name" colSpan="6" className="muted">No tenants match your filters.</td></tr>}
               </tbody>
             </table>
+            <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
           </div>
         </div>
       )}

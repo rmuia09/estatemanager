@@ -15,6 +15,7 @@ import Notifications from './pages/Notifications.jsx'
 import Activity from './pages/Activity.jsx'
 import Settings from './pages/Settings.jsx'
 import Users from './pages/Users.jsx'
+import Visitors from './pages/Visitors.jsx'
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: '📊' },
@@ -96,7 +97,7 @@ export default function App() {
   }
 
   const isAdmin = user.role === 'admin'
-  const tabs = isAdmin ? [...TABS, { id: 'users', label: 'Users', icon: '🔐' }] : TABS
+  const tabs = isAdmin ? [...TABS, { id: 'users', label: 'Users', icon: '🔐' }, { id: 'visitors', label: 'Visitors', icon: '👀' }] : TABS
   const initials = (user.full_name || user.username || 'U').split(' ').map((s) => s[0]).join('').slice(0, 2).toUpperCase()
 
   return (
@@ -148,6 +149,7 @@ export default function App() {
         {tab === 'activity' && <Activity />}
         {tab === 'settings' && <Settings />}
         {tab === 'users' && isAdmin && <Users />}
+        {tab === 'visitors' && isAdmin && <Visitors />}
       </main>
     </div>
   )

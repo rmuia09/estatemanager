@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useResource } from '../api.js'
+import Paginator, { usePagination } from '../components/Paginator.jsx'
 
 export default function Activity() {
   const { data: entries, loading, error } = useResource('/api/activity?limit=400')
@@ -22,6 +23,9 @@ export default function Activity() {
       return true
     })
   }, [entries, fAction, fText])
+
+  const { page, setPage, totalItems, totalPages, pageItems } = usePagination(shown, 20)
+  useEffect(() => setPage(1), [fAction, fText])
 
   return (
     <div>
@@ -57,7 +61,7 @@ export default function Activity() {
                   <tr><th>When</th><th>User</th><th>Action</th><th>Entity</th><th>Reason</th><th>Details</th></tr>
                 </thead>
                 <tbody>
-                  {shown.map((e) => (
+                  {pageItems.map((e) => (
                     <tr key={e.id}>
                       <td data-label="When" className="small muted activity-when">{e.created_at || ''}</td>
                       <td data-label="User" className="small">{e.username || 'system'}</td>
@@ -69,6 +73,7 @@ export default function Activity() {
                   ))}
                 </tbody>
               </table>
+              <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
             </div>
           )}
         </div>

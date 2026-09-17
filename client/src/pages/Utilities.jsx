@@ -3,6 +3,7 @@ import { api, useResource } from '../api.js'
 import { ksh2, fmtDate, todayStr } from '../format.js'
 import Modal from '../components/Modal.jsx'
 import ConfirmDelete from '../components/ConfirmDelete.jsx'
+import Paginator, { usePagination } from '../components/Paginator.jsx'
 
 export default function Utilities() {
   const { data: units } = useResource('/api/units')
@@ -40,6 +41,9 @@ export default function Utilities() {
     }
     return true
   })
+
+  const { page, setPage, totalItems, totalPages, pageItems } = usePagination(shownReadings, 20)
+  useEffect(() => setPage(1), [filterText, filterProp, filterUtility, filterStatus])
 
   useEffect(() => {
     if (rates) { setRateWater(rates.water); setRateElec(rates.electricity); if (!rate) setRate(rates.water) }
@@ -227,7 +231,7 @@ export default function Utilities() {
                   <th className="num">Rate</th><th className="num">Amount</th><th>Status</th><th></th></tr>
               </thead>
               <tbody>
-                {shownReadings.map((r) => (
+                {pageItems.map((r) => (
                   <tr key={r.id}>
                     <td data-label="Date">{fmtDate(r.reading_date)}</td>
                     <td data-label="Property">{r.property_name}</td><td data-label="Unit">{r.unit_number}</td>
@@ -249,6 +253,7 @@ export default function Utilities() {
                 ))}
               </tbody>
             </table>
+            <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
           </div>
         )}
       </div>

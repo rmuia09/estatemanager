@@ -12,6 +12,8 @@ Rental management system for the estate (**Melon Park** — 32 units, **Block 13
 - **Water & electricity** — enter the **current and previous meter readings**; consumption and bill are computed automatically using configurable rates per unit (water per m³, electricity per kWh); mark bills paid. Pending utility balances are included in rent-due messages.
 - **SMS & email notifications** — Africa's Talking SMS + SMTP email (zero extra dependencies), with delivery status tracked per message; test integration from Settings; messages are *simulated* when no credentials are configured.
 - **Audit trail** — every major action (login, creates, edits, deletes, payments, readings, renewals, notifications, settings changes) is logged with who, what, when and why.
+- **Visitor stats (admins)** — every page load is recorded (path, IP, device/browser) with a private admin-only **Visitors** page: totals, unique visitors, last-24h, a 30-day trend and top pages. No third-party trackers.
+- **Paginated tables everywhere** — large lists (units, tenants, payments, renewals, utilities, notifications, activity, users, visits) show 20 rows per page with ‹ Prev / Next › and a "1–20 of 157" counter; searching or filtering resets to page 1.
 - **Reason-mandated deletes** — deleting any record requires an explanation + confirmation; the reason is stored in the audit trail.
 - **Full CRUD everywhere** — properties, units, tenants, leases, payments and meter readings can all be added, edited and deleted.
 - **Mobile-ready (PWA)** — installable from Safari/Chrome and works on any phone: the sidebar becomes a swipeable **bottom tab bar** below 760px and tables stack into labelled cards below 600px.
@@ -24,8 +26,8 @@ Rental management system for the estate (**Melon Park** — 32 units, **Block 13
 Change it after first login via the sidebar → **Change password**.
 
 ## Roles
-- **Admin** — everything, plus the **Users** tab (add/edit/disable/delete users).
-- **Manager** — all business features (properties, units, tenants, onboarding, payments, reports, renewals, utilities, notifications, activity, settings) but cannot manage users.
+- **Admin** — everything, plus the **Users** tab (add/edit/disable/delete users) and the **Visitors** tab (site traffic).
+- **Manager** — all business features (properties, units, tenants, onboarding, payments, reports, renewals, utilities, notifications, activity, settings) but cannot manage users or view visitor stats.
 
 ## Documentation
 - **[USER_MANUAL.md](./USER_MANUAL.md)** — day-to-day usage of every screen and task.
@@ -95,6 +97,7 @@ rm -f server/data/estate.db* && npm run seed
 | POST | `/api/reminders/run` | Run automated renewal reminders now |
 | POST | `/api/integrations/test` | Send a test SMS/email (`channel`, `recipient`) |
 | GET | `/api/activity` | Audit trail (who / action / entity / reason / when) |
+| GET | `/api/visits` | Visitor stats — totals, 30-day trend, top pages, recent visits (admin only) |
 | GET/PUT | `/api/utility/rates` | Water / electricity rates |
 | GET/POST/PATCH/DELETE | `/api/readings` (/`:id`) | Meter reading CRUD; POST computes previous reading, consumption & amount |
 
@@ -109,6 +112,6 @@ server/            Express API + SQLite
 client/            React + Vite web app
   src/pages/       Login, Account, Dashboard, Properties, Units, Onboarding,
                    Tenants, Payments, Reports, Renewals, Utilities,
-                   Notifications, Activity, Settings, Users
-  src/components/  Modal, ConfirmDelete, ReceivePayment, OnboardingModal
+                   Notifications, Activity, Settings, Users, Visitors
+  src/components/  Modal, ConfirmDelete, Paginator, ReceivePayment, OnboardingModal
 ```

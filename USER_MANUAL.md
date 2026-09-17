@@ -29,11 +29,13 @@ month.
 11. [Notifications message history](#11-notifications-message-history)
 12. [Activity & audit trail](#12-activity--audit-trail)
 13. [Deleting records safely](#13-deleting-records-safely)
+14. [The Visitors page (admins)](#14-the-visitors-page-admins)
 
 The *left-hand sidebar* contains every section (on a phone it becomes the **bottom tab
 bar** — see [Using the app on a phone](#using-the-app-on-a-phone)). Admin accounts also
-see a **Users** tab — see [CONFIGURATION.md](./CONFIGURATION.md#users--roles) for
-managing accounts.
+see a **Users** and a **Visitors** tab — see [CONFIGURATION.md](./CONFIGURATION.md#users--roles)
+for managing accounts, and [The Visitors page](#14-the-visitors-page-admins) for site
+traffic.
 
 ---
 
@@ -446,3 +448,34 @@ The reason, user, time and affected record are stored permanently in the
 
 For user-account administration (creating users, roles, disabling accounts), see
 [Users & roles](./CONFIGURATION.md#users--roles).
+
+---
+
+## 14. The Visitors page (admins)
+
+The **Visitors** tab (admin accounts only) shows who has been opening the site and how
+often — useful for checking whether tenants, agents or partners are actually visiting
+your portal, and for demo day.
+
+Every time someone loads a page in the browser, that single page-load is recorded — this
+page carries no tracking scripts, cookies or third-party analytics; it only reads the
+requests the browser already makes. What is stored is minimal: the page opened, the IP
+address the request came from, the browser/device type and the time. A **Visitors** tab
+does not appear for, and `/api/visits` is blocked for, manager accounts.
+
+The page shows:
+
+- **Summary cards** — *Total page loads*, *Unique visitors* (counted by IP) and *Last
+  24 hours*.
+- **Daily views (30 days)** — a bar chart of page loads per day, with the number of
+  unique visitors on hover.
+- **Top pages** — the 10 most-opened pages with their load counts.
+- **Recent visits** — the latest entries with **When**, **IP**, **Path**, **Device**
+  (phone / tablet / desktop / bot) and **Browser**.
+
+### Pagination on long tables
+
+Most lists in the app (units, tenants, payments, renewals, utilities, notifications,
+activity, users and visits) are **paginated**: they show **20 rows per page**, and when
+there are more you get **‹ Prev** and **Next ›** buttons plus a *“1–20 of 157”* counter
+below the table. Searching, filtering or clearing filters always returns you to **page 1**.

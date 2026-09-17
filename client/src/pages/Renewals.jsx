@@ -3,6 +3,7 @@ import { api, useResource } from '../api.js'
 import { ksh, fmtDate, todayStr } from '../format.js'
 import Modal from '../components/Modal.jsx'
 import ConfirmDelete from '../components/ConfirmDelete.jsx'
+import Paginator, { usePagination } from '../components/Paginator.jsx'
 
 const badgeFor = (d) => {
   if (d < 0) return <span className="badge danger">Overdue</span>
@@ -109,6 +110,8 @@ export default function Renewals() {
   const due = filtered.filter((l) => l.days_left >= 0 && l.days_left <= 60)
   const later = filtered.filter((l) => l.days_left > 60)
 
+  const { page, setPage, totalItems, totalPages, pageItems: laterItems } = usePagination(later, 20)
+
   return (
     <div>
       <div className="page-head">
@@ -153,12 +156,13 @@ export default function Renewals() {
                     <th>Start</th><th>End</th><th>Time left</th><th>Notice</th><th></th></tr>
                 </thead>
                 <tbody>
-                  {later.map((l) => (
+                  {laterItems.map((l) => (
                     <LeaseRow key={l.id} l={l} busy={busy} onNotice={sendNotice} onEdit={openEdit} onDelete={setConfirmDel} showRenew={false} badgeFor={badgeFor} ksh={ksh} fmtDate={fmtDate} />
                   ))}
-                  {later.length === 0 && <tr><td data-label="Property" colSpan="10" className="muted">No other active leases.</td></tr>}
+                  {laterItems.length === 0 && <tr><td data-label="Property" colSpan="10" className="muted">No other active leases.</td></tr>}
                 </tbody>
               </table>
+              <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
             </div>
           </div>
         </>

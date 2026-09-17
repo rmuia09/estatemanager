@@ -5,15 +5,34 @@ import express from 'express'
 import cors from 'cors'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import db, { getSettings as getSettingsRows, logAudit } from './db.js'
+import db, { getSettings as getSettingsRows, logAudit, logVisit, pruneVisits } from './db.js'
 import { sendForLease, runRenewalReminders, sendTestMessage } from './reminders.js'
 
 const app = express()
 const PORT = process.env.PORT || 4000
 const JWT_SECRET = process.env.JWT_SECRET || 'estate-manager-secret-key-CHANGE-ME'
 
+app.set('trust proxy', true)
 app.use(cors())
 app.use(express.json())
+
+/* Visitor log — records page loads only (SPA navigations, not static assets). */
+const STATIC_PREFIXES = ['/assets/', '/icons/']
+const STATIC_NAMES = new Set(['/manifest.json', '/sw.js', '/favicon.ico', '/robots.txt'])
+app.use((req, res, next) => {
+  if (
+    req.method === 'GET' && !req.path.startsWith('/api') && req.accepts('html') &&
+    !STATIC_PREFIXES.some((p) => req.path.startsWith(p)) && !STATIC_NAMES.has(req.path)
+  ) {
+    const fwd = (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+    logVisit({
+      path: req.path,
+      ip: fwd || req.ip || '',
+      user_agent: req.get('user-agent') || ''
+    })
+  }
+  next()
+})
 
 const DAY = 86400000
 const toDateStr = (d) =>
@@ -985,6 +1004,32 @@ app.post('/api/reminders/run', async (req, res) => {
 app.get('/api/activity', (req, res) => {
   const limit = Math.min(500, Number(req.query.limit) || 200)
   res.json(db.prepare('SELECT * FROM audit_log ORDER BY id DESC LIMIT ?').all(limit))
+})
+
+app.get('/api/visits', requireAdmin, (req, res) => {
+  pruneVisits()
+  const classify = (ua) => {
+    ua = ua || ''
+    const mobile = /Mobile|Android|iPhone|iPod/i.test(ua)
+    const tablet = /iPad|Tablet/i.test(ua)
+    const bot = /bot|curl|wget|python-requests|Postman|httpclient|Googlebot|facebookexternalhit/i.test(ua)
+    const device = bot ? 'bot / script' : tablet ? 'tablet' : mobile ? 'phone' : 'desktop'
+    const browser = ua.includes('Edg/') ? 'Edge' : ua.includes('OPR/') || ua.includes('Opera') ? 'Opera'
+      : ua.includes('Firefox/') ? 'Firefox' : ua.includes('Chrome/') ? 'Chrome'
+      : ua.includes('Safari/') ? 'Safari' : ua.includes('facebookexternalhit') ? 'Facebook'
+      : ua ? 'other' : '—'
+    return { device, browser }
+  }
+  const total = db.prepare('SELECT COUNT(*) c FROM visits').get().c
+  const uniqueIps = db.prepare('SELECT COUNT(DISTINCT ip) c FROM visits').get().c
+  const last24h = db.prepare("SELECT COUNT(*) c FROM visits WHERE created_at >= datetime('now','-1 day')").get().c
+  const byDay = db.prepare(
+    "SELECT substr(created_at,1,10) AS day, COUNT(*) AS views, COUNT(DISTINCT ip) AS uniques FROM visits WHERE created_at >= date('now','-29 day') GROUP BY day ORDER BY day"
+  ).all()
+  const byPath = db.prepare('SELECT path, COUNT(*) AS views FROM visits GROUP BY path ORDER BY views DESC LIMIT 10').all()
+  const recent = db.prepare('SELECT id, created_at, path, ip, user_agent FROM visits ORDER BY id DESC LIMIT 200').all()
+    .map((r) => ({ ...classify(r.user_agent), id: r.id, created_at: r.created_at, path: r.path, ip: r.ip }))
+  res.json({ total, unique_ips: uniqueIps, last24h, by_day: byDay, by_path: byPath, recent })
 })
 
 /* ---------------- Production static hosting (single service) ---------------- */

@@ -124,6 +124,14 @@ CREATE TABLE IF NOT EXISTS audit_log (
   created_at  TEXT DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS visits (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at TEXT DEFAULT (datetime('now')),
+  path       TEXT DEFAULT '/',
+  ip         TEXT,
+  user_agent TEXT
+);
+
 CREATE INDEX IF NOT EXISTS idx_units_property   ON units(property_id);
 CREATE INDEX IF NOT EXISTS idx_leases_unit      ON leases(unit_id);
 CREATE INDEX IF NOT EXISTS idx_leases_status    ON leases(status);
@@ -132,6 +140,7 @@ CREATE INDEX IF NOT EXISTS idx_payments_unit    ON payments(unit_id);
 CREATE INDEX IF NOT EXISTS idx_readings_unit    ON meter_readings(unit_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications(created_at);
 CREATE INDEX IF NOT EXISTS idx_audit_created    ON audit_log(created_at);
+CREATE INDEX IF NOT EXISTS idx_visits_created   ON visits(created_at);
 `)
 
 /* ---------------- Migration for existing databases ---------------- */
@@ -322,6 +331,21 @@ export function getSettings() {
 export function logAudit({ user_id, username }, action, entity_type, entity_id, reason, details) {
   db.prepare('INSERT INTO audit_log (user_id, username, action, entity_type, entity_id, reason, details) VALUES (?, ?, ?, ?, ?, ?, ?)')
     .run(user_id != null ? user_id : null, username || '', action, entity_type, entity_id != null ? entity_id : null, reason || '', details || '')
+}
+
+let visitInsertCount = 0
+export function logVisit({ path = '/', ip = '', user_agent = '' }) {
+  try {
+    db.prepare('INSERT INTO visits (path, ip, user_agent) VALUES (?, ?, ?)').run(path, ip || '', user_agent || '')
+    visitInsertCount++
+    if (visitInsertCount % 200 === 0) pruneVisits()
+  } catch (e) {
+    console.error('Failed to log visit:', e.message)
+  }
+}
+
+export function pruneVisits(keep = 10000) {
+  db.prepare('DELETE FROM visits WHERE id NOT IN (SELECT id FROM visits ORDER BY id DESC LIMIT ?)').run(keep)
 }
 
 export default db

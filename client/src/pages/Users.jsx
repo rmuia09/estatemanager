@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api, useResource } from '../api.js'
 import Modal from '../components/Modal.jsx'
 import ConfirmDelete from '../components/ConfirmDelete.jsx'
+import Paginator, { usePagination } from '../components/Paginator.jsx'
 
 const empty = { username: '', password: '', full_name: '', role: 'manager' }
 
@@ -27,6 +28,9 @@ export default function Users() {
     }
     return true
   })
+
+  const { page, setPage, totalItems, totalPages, pageItems } = usePagination(shown, 20)
+  useEffect(() => setPage(1), [filterText, filterRole, filterStatus])
 
   function openAdd() { setForm(empty); setAdding(true) }
   function openEdit(u) { setForm({ username: u.username, password: '', full_name: u.full_name || '', role: u.role }); setEditing(u) }
@@ -137,7 +141,7 @@ export default function Users() {
                 <tr><th>Username</th><th>Full name</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr>
               </thead>
               <tbody>
-                {shown.map((u) => (
+                {pageItems.map((u) => (
                   <tr key={u.id}>
                     <td data-label="Username"><strong>{u.username}</strong></td>
                     <td data-label="Full name">{u.full_name || '—'}</td>
@@ -160,6 +164,7 @@ export default function Users() {
                 {shown.length === 0 && <tr><td data-label="Username" colSpan="6" className="muted">No users match your filters.</td></tr>}
               </tbody>
             </table>
+            <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
           </div>
         </div>
       )}

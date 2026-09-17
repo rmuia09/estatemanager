@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api, useResource } from '../api.js'
 import { ksh, fmtDate } from '../format.js'
 import Modal from '../components/Modal.jsx'
 import ReceivePayment from '../components/ReceivePayment.jsx'
 import ConfirmDelete from '../components/ConfirmDelete.jsx'
 import OnboardingModal from '../components/OnboardingModal.jsx'
+import Paginator, { usePagination } from '../components/Paginator.jsx'
 
 const empty = { property_id: '', unit_number: '', unit_type: 'apartment', monthly_rent: '', status: 'vacant' }
 
@@ -74,6 +75,9 @@ export default function Units() {
     return true
   })
 
+  const { page, setPage, totalItems, totalPages, pageItems } = usePagination(shown, 20)
+  useEffect(() => setPage(1), [filterText, filterProp, filterStatus])
+
   return (
     <div>
       <div className="page-head">
@@ -126,7 +130,7 @@ export default function Units() {
                 </tr>
               </thead>
               <tbody>
-                {shown.map((u) => (
+                {pageItems.map((u) => (
                   <tr key={u.id}>
                     <td data-label="Property">{u.property_name}</td>
                     <td data-label="Unit"><strong>{u.unit_number}</strong></td>
@@ -155,6 +159,7 @@ export default function Units() {
                 {shown.length === 0 && <tr><td data-label="Property" colSpan="9" className="muted">No units match these filters.</td></tr>}
               </tbody>
             </table>
+            <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
           </div>
         )}
       </div>

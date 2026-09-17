@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { api, useResource } from '../api.js'
 import { ksh, fmtDate, currentMonth } from '../format.js'
 import Modal from '../components/Modal.jsx'
 import ReceivePayment from '../components/ReceivePayment.jsx'
 import ConfirmDelete from '../components/ConfirmDelete.jsx'
+import Paginator, { usePagination } from '../components/Paginator.jsx'
 
 const fmtMonth = (ym) => {
   const [y, m] = ym.split('-').map(Number)
@@ -57,6 +58,9 @@ export default function Payments() {
   }, [payments, fText, fProp, fUnit, fTenant, fFrom, fTo])
 
   const total = shown.reduce((s, p) => s + p.amount, 0)
+
+  const { page, setPage, totalItems, totalPages, pageItems } = usePagination(shown, 20)
+  useEffect(() => setPage(1), [fText, fProp, fUnit, fTenant, fFrom, fTo])
 
   function openEdit(p) {
     setForm({ amount: p.amount, payment_date: p.payment_date, period: p.period, method: p.method, notes: p.notes || '' })
@@ -170,7 +174,7 @@ export default function Payments() {
                 </tr>
               </thead>
               <tbody>
-                {shown.map((p) => (
+                {pageItems.map((p) => (
                   <tr key={p.id}>
                     <td data-label="Date">{fmtDate(p.payment_date)}</td>
                     <td data-label="Property">{p.property_name}</td>
@@ -189,6 +193,7 @@ export default function Payments() {
                 ))}
               </tbody>
             </table>
+            <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
           </div>
         )}
       </div>
