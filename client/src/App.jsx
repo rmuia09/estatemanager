@@ -117,6 +117,9 @@ export default function App() {
               <span className="nav-icon">{t.icon}</span> {t.label}
             </button>
           ))}
+          <button className="nav-item tab-logout" onClick={logout} title="Log out">
+            <span className="nav-icon">⏻</span> Logout
+          </button>
         </nav>
 
         <div className="sidebar-user">
@@ -129,7 +132,7 @@ export default function App() {
           </div>
           <div className="user-actions">
             <button className="btn small secondary" onClick={() => setTab('account')}>Change password</button>
-            <button className="btn small danger" onClick={logout}>Logout</button>
+            <button className="btn small logout-btn" onClick={logout}>⏻ Logout</button>
           </div>
         </div>
       </aside>
