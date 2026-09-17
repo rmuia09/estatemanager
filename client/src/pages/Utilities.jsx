@@ -223,6 +223,8 @@ export default function Utilities() {
         {error && <div className="error-banner">{error}</div>}
         {shownReadings.length === 0 && !loading && <p className="empty">No readings match your filters.</p>}
         {shownReadings.length > 0 && (
+          <>
+          <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
           <div className="tbl-wrap">
             <table>
               <thead>
@@ -255,6 +257,7 @@ export default function Utilities() {
             </table>
             <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
           </div>
+          </>
         )}
       </div>
 

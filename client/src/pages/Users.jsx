@@ -135,6 +135,7 @@ export default function Users() {
               )}
             </div>
           </div>
+          <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
           <div className="tbl-wrap">
             <table>
               <thead>

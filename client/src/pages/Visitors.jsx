@@ -73,6 +73,7 @@ export default function Visitors() {
             {recent.length === 0 && <p className="empty">No visits recorded yet.</p>}
             {recent.length > 0 && (
               <>
+                <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
                 <div className="tbl-wrap">
                   <table>
                     <thead>

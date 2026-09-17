@@ -121,7 +121,9 @@ export default function Units() {
         {loading && <div className="loading">Loading units…</div>}
         {error && <div className="error-banner">{error}</div>}
         {units && (
-          <div className="tbl-wrap">
+          <>
+            <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
+            <div className="tbl-wrap">
             <table>
               <thead>
                 <tr>
@@ -161,6 +163,7 @@ export default function Units() {
             </table>
             <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
           </div>
+          </>
         )}
       </div>
 

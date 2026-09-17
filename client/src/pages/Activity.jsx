@@ -55,6 +55,8 @@ export default function Activity() {
 
           {shown.length === 0 && <p className="empty">No activity logged yet.</p>}
           {shown.length > 0 && (
+            <>
+            <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
             <div className="tbl-wrap">
               <table>
                 <thead>
@@ -75,6 +77,7 @@ export default function Activity() {
               </table>
               <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
             </div>
+            </>
           )}
         </div>
       )}

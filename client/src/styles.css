@@ -197,7 +197,7 @@ tbody tr:hover { background: #fafcfd; }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 
 /* ---------- Pagination ---------- */
-.paginator { display: flex; align-items: center; gap: 8px; justify-content: space-between; padding: 10px 2px 2px; flex-wrap: wrap; }
+.paginator { display: flex; align-items: center; gap: 8px; justify-content: space-between; padding: 6px 2px; margin: 4px 0; flex-wrap: wrap; }
 .paginator .pag-status { font-size: 12px; color: var(--muted); }
 .paginator .pag-btns { display: flex; gap: 6px; }
 .paginator .btn:disabled { opacity: 0.45; cursor: not-allowed; }

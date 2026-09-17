@@ -165,6 +165,8 @@ export default function Payments() {
         {shown.length === 0 && !loading && <p className="empty">No payments match these filters.</p>}
 
         {shown.length > 0 && (
+          <>
+          <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
           <div className="tbl-wrap">
             <table>
               <thead>
@@ -195,6 +197,7 @@ export default function Payments() {
             </table>
             <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
           </div>
+          </>
         )}
       </div>
 

@@ -478,4 +478,5 @@ The page shows:
 Most lists in the app (units, tenants, payments, renewals, utilities, notifications,
 activity, users and visits) are **paginated**: they show **20 rows per page**, and when
 there are more you get **‹ Prev** and **Next ›** buttons plus a *“1–20 of 157”* counter
-below the table. Searching, filtering or clearing filters always returns you to **page 1**.
+**above and below the table** — either set of buttons navigates every page of the list.
+Searching, filtering or clearing filters always returns you to **page 1**.

@@ -98,6 +98,8 @@ export default function Notifications() {
         {shown.length === 0 && !loading && <p className="empty">No notification messages yet. Run reminders or send a notice to begin.</p>}
 
         {shown.length > 0 && (
+          <>
+          <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
           <div className="tbl-wrap">
             <table>
               <thead>
@@ -130,6 +132,7 @@ export default function Notifications() {
               )
             })()}
           </div>
+          </>
         )}
       </div>
     </div>

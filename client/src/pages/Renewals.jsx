@@ -149,6 +149,7 @@ export default function Renewals() {
 
           <div className="card">
             <h3>All active leases</h3>
+            <Paginator page={page} totalPages={totalPages} totalItems={totalItems} setPage={setPage} />
             <div className="tbl-wrap">
               <table>
                 <thead>
