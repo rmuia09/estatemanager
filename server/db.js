@@ -156,6 +156,15 @@ function deleteUnitCascade(unitId) {
 }
 
 function migrate() {
+  if (!columnExists('users', 'email')) {
+    db.exec('ALTER TABLE users ADD COLUMN email TEXT')
+  }
+  if (!columnExists('users', 'reset_token')) {
+    db.exec('ALTER TABLE users ADD COLUMN reset_token TEXT')
+  }
+  if (!columnExists('users', 'reset_expires')) {
+    db.exec('ALTER TABLE users ADD COLUMN reset_expires TEXT')
+  }
   if (!columnExists('leases', 'renewal_months')) {
     db.exec('ALTER TABLE leases ADD COLUMN renewal_months INTEGER DEFAULT 12')
   }

@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { randomBytes } from 'node:crypto'
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import express from 'express'
@@ -7,6 +8,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import db, { getSettings as getSettingsRows, logAudit, logVisit, pruneVisits } from './db.js'
 import { sendForLease, runRenewalReminders, sendTestMessage } from './reminders.js'
+import { captureEvent, captureException, identifyUser, shutdownPostHog } from './posthog.js'
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -113,7 +115,37 @@ app.post('/api/auth/login', (req, res) => {
   }
   const token = jwt.sign({ sub: user.id }, JWT_SECRET, { expiresIn: '12h' })
   logAudit(user, 'login', 'user', user.id, null, user.username)
+  identifyUser(user)
+  captureEvent(user, 'user_logged_in', { role: user.role })
   res.json({ token, user: { id: user.id, username: user.username, full_name: user.full_name, role: user.role } })
+})
+
+app.post('/api/auth/forgot-password', (req, res) => {
+  const { email, username } = req.body || {}
+  const ident = String(email || username || '').trim().toLowerCase()
+  if (!ident) return res.status(400).json({ error: 'username or email is required' })
+  const user = db.prepare('SELECT id, username, email, active FROM users WHERE lower(username) = ? OR lower(email) = ? LIMIT 1').get(ident, ident)
+  if (!user || !user.active) return res.json({ ok: true, message: 'If an account matches, a reset link is on its way.' })
+  const token = randomBytes(32).toString('hex')
+  const expires = new Date(Date.now() + 15 * 60 * 1000).toISOString()
+  db.prepare('UPDATE users SET reset_token = ?, reset_expires = ? WHERE id = ?').run(token, expires, user.id)
+  const resetUrl = `http://localhost:4000/reset?token=${token}`
+  console.log(`Password reset link for ${user.username}: ${resetUrl}`)
+  res.json({ ok: true, message: 'Reset link sent — check your email.', resetUrl })
+})
+
+app.post('/api/auth/reset-password', (req, res) => {
+  const { token, new_password } = req.body || {}
+  if (!token || !new_password) return res.status(400).json({ error: 'token and new_password are required' })
+  if (String(new_password).length < 6) return res.status(400).json({ error: 'New password must be at least 6 characters' })
+  const user = db.prepare('SELECT id, username, active, reset_token, reset_expires FROM users WHERE reset_token = ?').get(token)
+  if (!user || !user.active || !user.reset_expires || new Date(user.reset_expires) < new Date()) {
+    return res.status(400).json({ error: 'Invalid or expired reset token' })
+  }
+  db.prepare('UPDATE users SET password_hash = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?')
+    .run(bcrypt.hashSync(new_password, 10), user.id)
+  logAudit({ user_id: user.id, username: user.username }, 'reset_password', 'user', user.id, null, '')
+  res.json({ ok: true, message: 'Password reset. Sign in with your new password.' })
 })
 
 app.use('/api', requireAuth)
@@ -339,6 +371,7 @@ app.post('/api/units/:id/vacate', (req, res) => {
   }
   db.prepare('UPDATE units SET status = ? WHERE id = ?').run('vacant', unit.id)
   logAudit(req.user, 'vacate', 'unit', unit.id, reason, `${unit.unit_number}${activeLeases.length ? ` · ${activeLeases.length} lease(s) ended` : ''}`)
+  captureEvent(req.user, 'unit_vacated', { unit_id: unit.id, leases_ended: activeLeases.length })
   res.json({ ok: true, leases_ended: activeLeases.length })
 })
 
@@ -417,6 +450,15 @@ app.post('/api/onboarding', (req, res) => {
   db.prepare('UPDATE units SET status = ?, monthly_rent = ? WHERE id = ?').run('occupied', rent, unit.id)
 
   logAudit(req.user, 'create', 'lease', leaseId, 'Onboarded tenant', `${tenant.name} → ${unit.unit_number}`)
+  captureEvent(req.user, 'tenant_onboarded', {
+    lease_id: leaseId,
+    tenant_id: tenantId,
+    unit_id: unit.id,
+    property_id: unit.property_id,
+    monthly_rent: rent,
+    duration_months: months,
+    renewal_months: renewMonths
+  })
 
   res.json({
     lease_id: leaseId, tenant_id: tenantId, unit_id: unit.id,
@@ -504,6 +546,14 @@ app.post('/api/leases/:id/renew', (req, res) => {
   db.prepare('UPDATE leases SET notice_sent = 0, notice_sent_at = NULL WHERE id = ?').run(r.lastInsertRowid)
   db.prepare('UPDATE units SET monthly_rent = ?, status = ? WHERE id = ?').run(newRent, 'occupied', lease.unit_id)
   logAudit(req.user, 'renew', 'lease', lease.id, 'Renewed lease', `→ KSh ${newRent}/mo for ${renewMonths} months`)
+  captureEvent(req.user, 'lease_renewed', {
+    previous_lease_id: lease.id,
+    lease_id: r.lastInsertRowid,
+    unit_id: lease.unit_id,
+    previous_monthly_rent: lease.monthly_rent,
+    monthly_rent: newRent,
+    renewal_months: renewMonths
+  })
 
   res.json({ id: r.lastInsertRowid, new_rent: newRent, start_date: toDateStr(start), end_date: toDateStr(end), renewal_months: renewMonths })
 })
@@ -514,8 +564,15 @@ app.patch('/api/leases/:id/notice', async (req, res) => {
   try {
     const result = await sendForLease(lease.id, 'reminder')
     if (result.error) return res.status(400).json({ error: result.error })
+    captureEvent(req.user, 'notification_sent', {
+      lease_id: lease.id,
+      notification_type: 'reminder',
+      channel_count: result.results.length,
+      statuses: result.results.map((x) => x.status)
+    })
     res.json({ ok: true, results: result.results })
   } catch (e) {
+    captureException(e, req.user, { operation: 'send_lease_notice' })
     res.status(500).json({ error: e.message })
   }
 })
@@ -526,6 +583,7 @@ app.post('/api/leases/:id/terminate', (req, res) => {
   db.prepare('UPDATE leases SET status = ? WHERE id = ?').run('terminated', lease.id)
   db.prepare('UPDATE units SET status = ? WHERE id = ?').run('vacant', lease.unit_id)
   logAudit(req.user, 'terminate', 'lease', lease.id, 'Terminated lease', `unit ${lease.unit_id}`)
+  captureEvent(req.user, 'lease_terminated', { lease_id: lease.id, unit_id: lease.unit_id })
   res.json({ ok: true })
 })
 
@@ -560,6 +618,14 @@ app.post('/api/payments', (req, res) => {
   const r = db.prepare('INSERT INTO payments (lease_id, unit_id, tenant_id, amount, payment_date, period, method, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
     .run(lId, unit_id, tId, Number(amount), payment_date, period || payment_date.slice(0, 7), method || 'cash', notes || '')
   logAudit(req.user, 'record_payment', 'payment', r.lastInsertRowid, 'Recorded rent payment', `KSh ${Number(amount)} · unit ${unit_id} · ${payment_date}`)
+  captureEvent(req.user, 'rent_payment_recorded', {
+    payment_id: r.lastInsertRowid,
+    lease_id: lId,
+    unit_id: Number(unit_id),
+    amount: Number(amount),
+    period: period || payment_date.slice(0, 7),
+    method: method || 'cash'
+  })
   res.json({ id: r.lastInsertRowid })
 })
 
@@ -861,6 +927,14 @@ app.post('/api/readings', (req, res) => {
   const r = db.prepare('INSERT INTO meter_readings (unit_id, utility, reading_date, current_reading, previous_reading, consumption, rate_per_unit, amount, status, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
     .run(Number(unit_id), utility, reading_date, Number(current_reading), previous, consumption, rates, amount, 'pending', notes || '')
   logAudit(req.user, 'record_reading', 'reading', r.lastInsertRowid, 'Recorded meter reading', `${utility} · unit ${unit_id} · used ${consumption}`)
+  captureEvent(req.user, 'utility_reading_recorded', {
+    reading_id: r.lastInsertRowid,
+    unit_id: Number(unit_id),
+    utility,
+    consumption,
+    rate_per_unit: rates,
+    amount
+  })
   res.json({ id: r.lastInsertRowid, previous_reading: previous, consumption, rate_per_unit: rates, amount })
 })
 
@@ -985,8 +1059,15 @@ app.post('/api/notifications', async (req, res) => {
     const r = await sendForLease(lease_id, type)
     if (r.error) return res.status(400).json({ error: r.error })
     logAudit(req.user, 'notify', 'lease', lease_id, `Sent ${type} notification`, JSON.stringify(r.results.map((x) => x.status)))
+    captureEvent(req.user, 'notification_sent', {
+      lease_id: Number(lease_id),
+      notification_type: type,
+      channel_count: r.results.length,
+      statuses: r.results.map((x) => x.status)
+    })
     res.json({ ok: true, results: r.results })
   } catch (e) {
+    captureException(e, req.user, { operation: 'send_notification' })
     res.status(500).json({ error: e.message })
   }
 })
@@ -995,8 +1076,14 @@ app.post('/api/reminders/run', async (req, res) => {
   try {
     const r = await runRenewalReminders()
     logAudit(req.user, 'reminders', null, null, 'Ran automated renewal reminders', `checked ${r.checked}, sent ${r.sent.length}`)
+    captureEvent(req.user, 'renewal_reminders_run', {
+      leases_checked: r.checked,
+      reminders_sent: r.sent.length,
+      reminders_failed: r.failed.length
+    })
     res.json(r)
   } catch (e) {
+    captureException(e, req.user, { operation: 'run_renewal_reminders' })
     res.status(500).json({ error: e.message })
   }
 })
@@ -1046,8 +1133,14 @@ if (fs.existsSync(distDir)) {
   console.log(`Static app enabled: serving ${distDir}`)
 }
 
+app.use((err, req, res, next) => {
+  captureException(err, req.user, { request_method: req.method, request_path: req.path })
+  if (res.headersSent) return next(err)
+  res.status(500).json({ error: 'Internal server error' })
+})
+
 /* ---------------- Startup ---------------- */
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Estate Manager API running on http://localhost:${PORT}`)
   runRenewalReminders().then((r) => {
     console.log(`Reminder engine: checked ${r.checked} lease(s), sent ${r.sent.length}`)
@@ -1056,3 +1149,16 @@ app.listen(PORT, () => {
     runRenewalReminders().catch((e) => console.error('Reminder engine failed:', e.message))
   }, 6 * 60 * 60 * 1000)
 })
+
+let shuttingDown = false
+async function gracefulShutdown() {
+  if (shuttingDown) return
+  shuttingDown = true
+  server.close(async () => {
+    await shutdownPostHog()
+    process.exit(0)
+  })
+}
+
+process.on('SIGINT', gracefulShutdown)
+process.on('SIGTERM', gracefulShutdown)
