@@ -1,6 +1,10 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
+import MotionCard from '../components/MotionCard.jsx'
+import NumberCounter from '../components/NumberCounter.jsx'
 import { useResource } from '../api.js'
 import { ksh, fmtDate } from '../format.js'
+import { design } from '../design-system.js'
 
 export default function Dashboard({ onNavigate }) {
   const { data, loading, error } = useResource('/api/dashboard')
@@ -29,6 +33,20 @@ export default function Dashboard({ onNavigate }) {
     return `${l.unit_number} ${l.tenant_name} ${l.property_name} ${l.end_date}`.toLowerCase().includes(q)
   })
 
+  function Stat({ className = '', delay = 0, children }) {
+    return (
+      <motion.div
+        className={`stat ${className}`}
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.02 }}
+        transition={{ duration: design.motion.durations.reveal, delay, ease: design.motion.easings.smooth }}
+      >
+        {children}
+      </motion.div>
+    )
+  }
+
   return (
     <div>
       <div className="page-head">
@@ -39,42 +57,42 @@ export default function Dashboard({ onNavigate }) {
       </div>
 
       <div className="stats">
-        <div className="stat">
+        <Stat delay={0.05}>
           <div className="label">Total units</div>
-          <div className="value">{s.totalUnits}</div>
+          <div className="value"><NumberCounter value={s.totalUnits} /></div>
           <div className="sub">across the estate</div>
-        </div>
-        <div className="stat good">
+        </Stat>
+        <Stat delay={0.11} className="good">
           <div className="label">Occupied</div>
-          <div className="value">{s.occupiedUnits}</div>
+          <div className="value"><NumberCounter value={s.occupiedUnits} /></div>
           <div className="sub">{s.vacantUnits} vacant</div>
-        </div>
-        <div className="stat accent">
+        </Stat>
+        <Stat delay={0.17} className="accent">
           <div className="label">Expected rent / month</div>
-          <div className="value">{ksh(s.expectedMonthly)}</div>
+          <div className="value"><NumberCounter value={s.expectedMonthly} prefix="KSh " /></div>
           <div className="sub">from active leases</div>
-        </div>
-        <div className="stat">
+        </Stat>
+        <Stat delay={0.23}>
           <div className="label">Collected this month</div>
-          <div className="value">{ksh(s.collectedMonth)}</div>
-          <div className="sub">{monthPct}% of expected</div>
-        </div>
+          <div className="value"><NumberCounter value={s.collectedMonth} prefix="KSh " /></div>
+          <div className="sub"><NumberCounter value={monthPct} suffix="%" /> of expected</div>
+        </Stat>
         {s.monthOutstanding > 0 && (
-          <div className="stat warn">
+          <Stat delay={0.29} className="warn">
             <div className="label">Outstanding this month</div>
-            <div className="value">{ksh(s.monthOutstanding)}</div>
+            <div className="value"><NumberCounter value={s.monthOutstanding} prefix="KSh " /></div>
             <div className="sub">rent not yet paid</div>
-          </div>
+          </Stat>
         )}
-        <div className="stat">
+        <Stat delay={0.35}>
           <div className="label">Pending utility bills</div>
-          <div className="value">{ksh(s.pendingUtility)}</div>
+          <div className="value"><NumberCounter value={s.pendingUtility} prefix="KSh " /></div>
           <div className="sub">water &amp; electricity</div>
-        </div>
+        </Stat>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 18, alignItems: 'start' }}>
-        <div className="card">
+        <MotionCard>
           <div className="card-title">
             <h3>Recent payments</h3>
             <input className="inp" placeholder="Filter payments…" value={payFilter} onChange={(e) => setPayFilter(e.target.value)} />
@@ -85,22 +103,27 @@ export default function Dashboard({ onNavigate }) {
               <thead><tr><th>Date</th><th>Property</th><th>Unit</th><th>Tenant</th><th>Method</th><th className="num">Amount</th></tr></thead>
               <tbody>
                 {recentPayments.map((p) => (
-                  <tr key={p.id}>
+                  <motion.tr
+                    key={p.id}
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    transition={{ duration: 0.25, ease: design.motion.easings.smooth }}
+                  >
                     <td data-label="Date">{fmtDate(p.payment_date)}</td>
                     <td data-label="Property">{p.property_name}</td>
                     <td data-label="Unit">{p.unit_number}</td>
                     <td data-label="Tenant">{p.tenant_name || '—'}</td>
                     <td data-label="Method">{p.method}</td>
                     <td data-label="Amount" className="num">{ksh(p.amount)}</td>
-                  </tr>
+                  </motion.tr>
                 ))}
               {recentPayments.length === 0 && <tr><td data-label="Date" colSpan="6" className="muted">No recent payments match.</td></tr>}
               </tbody>
             </table>
           </div>
-        </div>
+        </MotionCard>
 
-        <div className="card">
+        <MotionCard>
           <div className="card-title">
             <h3>Lease renewals due</h3>
             <input className="inp" placeholder="Filter renewals…" value={renewFilter} onChange={(e) => setRenewFilter(e.target.value)} />
@@ -110,7 +133,13 @@ export default function Dashboard({ onNavigate }) {
             <p className="muted">{renewFilter ? 'No renewals match your filter.' : 'No leases expiring in the next 60 days.'}</p>
           ) : (
             expiringSoon.map((l) => (
-              <div className="renewal-line" key={l.id}>
+              <motion.div
+                className="renewal-line"
+                key={l.id}
+                initial={{ opacity: 0, y: 6 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: design.motion.easings.smooth }}
+              >
                 <div style={{ flex: 1 }}>
                   <div><strong>{l.unit_number}</strong> <span className="muted">· {l.tenant_name}</span></div>
                   <div className="small muted">Ends {fmtDate(l.end_date)} · {l.property_name}</div>
@@ -119,10 +148,10 @@ export default function Dashboard({ onNavigate }) {
                   {l.days_left < 0 ? 'Overdue' : `${l.days_left}d left`}
                 </span>
                 {!l.notice_sent && <span className="badge danger">notice</span>}
-              </div>
+              </motion.div>
             ))
           )}
-        </div>
+        </MotionCard>
       </div>
     </div>
   )

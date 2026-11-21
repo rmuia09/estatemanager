@@ -29,12 +29,12 @@ export default function Login({ onLogin }) {
         {err && <div className="error-banner">{err}</div>}
 
         <div className="field">
-          <label>Username</label>
-          <input value={username} onChange={(e) => setUsername(e.target.value)} autoFocus autoComplete="username" />
+          <label htmlFor="login-username">Username</label>
+          <input id="login-username" value={username} onChange={(e) => setUsername(e.target.value)} autoFocus autoComplete="username" />
         </div>
         <div className="field">
-          <label>Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+          <label htmlFor="login-password">Password</label>
+          <input id="login-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
         </div>
 
         <button className="btn btn-block" disabled={busy || !username || !password}>

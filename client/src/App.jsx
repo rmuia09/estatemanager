@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { api, getToken, setToken } from './api.js'
+import { design } from './design-system.js'
 import Login from './pages/Login.jsx'
 import Account from './pages/Account.jsx'
 import Dashboard from './pages/Dashboard.jsx'
@@ -100,9 +102,28 @@ export default function App() {
   const tabs = isAdmin ? [...TABS, { id: 'users', label: 'Users', icon: '🔐' }, { id: 'visitors', label: 'Visitors', icon: '👀' }] : TABS
   const initials = (user.full_name || user.username || 'U').split(' ').map((s) => s[0]).join('').slice(0, 2).toUpperCase()
 
+  function Page({ id, children }) {
+    return (
+      <motion.div
+        key={id}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 8 }}
+        transition={{ duration: 0.3, ease: design.motion.easings.smooth }}
+      >
+        {children}
+      </motion.div>
+    )
+  }
+
   return (
     <div className="app">
-      <aside className="sidebar">
+      <motion.aside
+        className="sidebar"
+        initial={{ opacity: 0, x: -14 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, ease: design.motion.easings.smooth }}
+      >
         <div className="brand">
           <div className="brand-logo">🏢</div>
           <div>
@@ -113,9 +134,14 @@ export default function App() {
 
         <nav>
           {tabs.map((t) => (
-            <button key={t.id} className={tab === t.id ? 'nav-item active' : 'nav-item'} onClick={() => setTab(t.id)}>
+            <motion.button
+              key={t.id}
+              className={tab === t.id ? 'nav-item active' : 'nav-item'}
+              onClick={() => setTab(t.id)}
+              whileHover={{ background: 'rgba(255,255,255,0.12)' }}
+            >
               <span className="nav-icon">{t.icon}</span> {t.label}
-            </button>
+            </motion.button>
           ))}
           <button className="nav-item tab-logout" onClick={logout} title="Log out">
             <span className="nav-icon">⏻</span> Logout
@@ -135,24 +161,26 @@ export default function App() {
             <button className="btn small logout-btn" onClick={logout}>⏻ Logout</button>
           </div>
         </div>
-      </aside>
+      </motion.aside>
 
       <main className="main">
-        {tab === 'dashboard' && <Dashboard onNavigate={setTab} user={user} />}
-        {tab === 'account' && <Account user={user} onLogout={logout} />}
-        {tab === 'properties' && <Properties />}
-        {tab === 'units' && <Units />}
-        {tab === 'tenants' && <Tenants />}
-        {tab === 'onboarding' && <Onboarding />}
-        {tab === 'payments' && <Payments />}
-        {tab === 'reports' && <Reports />}
-        {tab === 'renewals' && <Renewals />}
-        {tab === 'utilities' && <Utilities />}
-        {tab === 'notifications' && <Notifications />}
-        {tab === 'activity' && <Activity />}
-        {tab === 'settings' && <Settings />}
-        {tab === 'users' && isAdmin && <Users />}
-        {tab === 'visitors' && isAdmin && <Visitors />}
+        <AnimatePresence mode="wait">
+          {tab === 'dashboard' && <Page id="dashboard"><Dashboard onNavigate={setTab} user={user} /></Page>}
+          {tab === 'account' && <Page id="account"><Account user={user} onLogout={logout} /></Page>}
+          {tab === 'properties' && <Page id="properties"><Properties /></Page>}
+          {tab === 'units' && <Page id="units"><Units /></Page>}
+          {tab === 'tenants' && <Page id="tenants"><Tenants /></Page>}
+          {tab === 'onboarding' && <Page id="onboarding"><Onboarding /></Page>}
+          {tab === 'payments' && <Page id="payments"><Payments /></Page>}
+          {tab === 'reports' && <Page id="reports"><Reports /></Page>}
+          {tab === 'renewals' && <Page id="renewals"><Renewals /></Page>}
+          {tab === 'utilities' && <Page id="utilities"><Utilities /></Page>}
+          {tab === 'notifications' && <Page id="notifications"><Notifications /></Page>}
+          {tab === 'activity' && <Page id="activity"><Activity /></Page>}
+          {tab === 'settings' && <Page id="settings"><Settings /></Page>}
+          {tab === 'users' && isAdmin && <Page id="users"><Users /></Page>}
+          {tab === 'visitors' && isAdmin && <Page id="visitors"><Visitors /></Page>}
+        </AnimatePresence>
       </main>
     </div>
   )
