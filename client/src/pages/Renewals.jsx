@@ -277,7 +277,7 @@ function LeaseRow({ l, busy, onNotice, onEdit, onDelete, showRenew = true, onRen
           {!l.notice_sent && <button className="btn small secondary" onClick={() => onNotice(l)}>Send notice</button>}
           <button className="btn small secondary" onClick={() => onEdit(l)}>Edit</button>
           {showRenew && <button className="btn small" disabled={busy === 'renew' + l.id} onClick={() => onRenew(l)}>{busy === 'renew' + l.id ? '…' : 'Renew +10%'}</button>}
-          <button className="btn small danger" onClick={() => onDelete(l)}>Del</button>
+          <button className="btn small danger" onClick={() => onDelete(l)}>Delete</button>
         </div>
       </td>
     </tr>
@@ -309,7 +309,7 @@ function RenewalTable({ rows, busy, onNotice, onRenew, onEdit, onTerminate, onDe
                   <button className="btn small secondary" onClick={() => onEdit(l)}>Edit</button>
                   <button className="btn small" disabled={busy === 'renew' + l.id} onClick={() => onRenew(l)}>{busy === 'renew' + l.id ? '…' : 'Renew +10%'}</button>
                   <button className="btn small danger" onClick={() => onTerminate(l)}>End</button>
-                  <button className="btn small danger" onClick={() => onDelete(l)}>Del</button>
+                  <button className="btn small danger" onClick={() => onDelete(l)}>Delete</button>
                 </div>
               </td>
             </tr>

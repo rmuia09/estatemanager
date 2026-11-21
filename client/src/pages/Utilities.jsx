@@ -248,7 +248,7 @@ export default function Utilities() {
                       <div className="inline-chips">
                         {r.status === 'pending' && <button className="btn small secondary" onClick={() => setStatus(r, 'paid')}>Mark paid</button>}
                         <button className="btn small secondary" onClick={() => openEdit(r)}>Edit</button>
-                        <button className="btn small danger" onClick={() => setDel(r)}>Del</button>
+                        <button className="btn small danger" onClick={() => setDel(r)}>Delete</button>
                       </div>
                     </td>
                   </tr>

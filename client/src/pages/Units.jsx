@@ -153,7 +153,7 @@ export default function Units() {
                           <button className="btn small ok" title="Onboard a tenant into this unit" onClick={() => setOccupy(u)}>Occupy</button>
                         )}
                         <button className="btn small secondary" onClick={() => openEdit(u)}>Edit</button>
-                        <button className="btn small danger" onClick={() => setConfirmDel(u)}>Del</button>
+                        <button className="btn small danger" onClick={() => setConfirmDel(u)}>Delete</button>
                       </div>
                     </td>
                   </tr>

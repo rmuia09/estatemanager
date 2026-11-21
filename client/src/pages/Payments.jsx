@@ -188,7 +188,7 @@ export default function Payments() {
                     <td data-label="">
                       <div className="inline-chips">
                         <button className="btn small secondary" onClick={() => openEdit(p)}>Edit</button>
-                        <button className="btn small danger" onClick={() => setConfirmDel(p)}>Del</button>
+                        <button className="btn small danger" onClick={() => setConfirmDel(p)}>Delete</button>
                       </div>
                     </td>
                   </tr>
