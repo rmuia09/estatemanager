@@ -1281,7 +1281,7 @@ app.use((err, req, res, next) => {
 
 /* ---------------- Startup ---------------- */
 const server = app.listen(PORT, () => {
-  console.log(`Estate Manager API running on http://localhost:${PORT}`)
+  console.log(`yane API running on http://localhost:${PORT}`)
   runRenewalReminders().then((r) => {
     console.log(`Reminder engine: checked ${r.checked} lease(s), sent ${r.sent.length}`)
   }).catch((e) => console.error('Reminder engine failed:', e.message))
