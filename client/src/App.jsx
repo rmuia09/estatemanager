@@ -21,6 +21,7 @@ import Settings from './pages/Settings.jsx'
 import Users from './pages/Users.jsx'
 import Visitors from './pages/Visitors.jsx'
 import YaneMark from './components/YaneMark.jsx'
+import { identifyForUser, trackScreen } from './analytics.js'
 
 const NAV_GROUPS = [
   {
@@ -103,6 +104,7 @@ export default function App() {
 
   function navigate(next) {
     if (next === tab) return
+    trackScreen(next, tab)
     setNavHistory((h) => [...h.slice(-9), tab])
     setTab(next)
     try { sessionStorage.setItem('estate:last-tab', next) } catch {}
@@ -154,6 +156,10 @@ export default function App() {
   if (!user) {
     return <Login onLogin={(u) => {
       setUser(u)
+      let stamp = ''
+      try { stamp = document.cookie.split(';').map((c) => c.trim()).find((c) => c.startsWith('yane_did='))?.slice(9) || '' } catch {}
+      identifyForUser(u, stamp)
+      trackScreen('dashboard', 'login')
       let last = null
       try { last = sessionStorage.getItem('estate:last-tab') } catch {}
       setTab(ALL_TAB_IDS.includes(last) ? last : 'dashboard')
