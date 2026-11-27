@@ -74,12 +74,14 @@ const ADMIN_GROUP = {
 const SHORTCUT_IDS = ['dashboard', 'properties', 'units', 'tenants', 'renewals', 'reports']
 const SHORTCUTS = NAV_GROUPS.flatMap((g) => g.items).filter((t) => SHORTCUT_IDS.includes(t.id))
 
-const IDLE_TIMEOUT_MS = 3 * 60 * 1000
+const ALL_TAB_IDS = [...NAV_GROUPS, ADMIN_GROUP].flatMap((g) => g.items).map((t) => t.id).concat('account')
+const IDLE_TIMEOUT_MS = 30 * 60 * 1000
 
 export default function App() {
   const [tab, setTab] = useState('dashboard')
   const [user, setUser] = useState(null)
   const [checking, setChecking] = useState(true)
+  const [navHistory, setNavHistory] = useState([])
 
   useEffect(() => {
     const token = getToken()
@@ -94,7 +96,22 @@ export default function App() {
     api.post('/api/auth/logout').catch(() => {})
     setToken(null)
     setUser(null)
+    setNavHistory([])
     setTab('dashboard')
+    try { sessionStorage.removeItem('estate:last-tab') } catch {}
+  }
+
+  function navigate(next) {
+    if (next === tab) return
+    setNavHistory((h) => [...h.slice(-9), tab])
+    setTab(next)
+    try { sessionStorage.setItem('estate:last-tab', next) } catch {}
+  }
+
+  function goBack() {
+    const prev = navHistory[navHistory.length - 1] || 'dashboard'
+    setNavHistory((h) => h.slice(0, -1))
+    setTab(prev)
   }
 
   const idleRef = useRef(null)
@@ -125,7 +142,7 @@ export default function App() {
   }, [user])
 
   useEffect(() => {
-    const onUnauthorized = () => { setUser(null); setTab('dashboard') }
+    const onUnauthorized = () => { setUser(null) }
     window.addEventListener('estate:unauthorized', onUnauthorized)
     return () => window.removeEventListener('estate:unauthorized', onUnauthorized)
   }, [])
@@ -135,7 +152,12 @@ export default function App() {
   }
 
   if (!user) {
-    return <Login onLogin={(u) => { setUser(u); setTab('dashboard') }} />
+    return <Login onLogin={(u) => {
+      setUser(u)
+      let last = null
+      try { last = sessionStorage.getItem('estate:last-tab') } catch {}
+      setTab(ALL_TAB_IDS.includes(last) ? last : 'dashboard')
+    }} />
   }
 
   const isAdmin = user.role === 'admin'
@@ -182,7 +204,7 @@ export default function App() {
                 <motion.button
                   key={t.id}
                   className={tab === t.id ? 'nav-item active' : 'nav-item'}
-                  onClick={() => setTab(t.id)}
+                  onClick={() => navigate(t.id)}
                   whileHover={{ background: 'rgba(255,255,255,0.12)' }}
                 >
                   <span className="nav-icon">{t.icon}</span> {t.label}
@@ -204,7 +226,7 @@ export default function App() {
             </div>
           </div>
           <div className="user-actions">
-            <button className="btn small secondary" onClick={() => setTab('account')}>Change password</button>
+            <button className="btn small secondary" onClick={() => navigate('account')}>Change password</button>
             <button className="btn small logout-btn" onClick={logout}>⏻ Logout</button>
           </div>
         </div>
@@ -212,12 +234,12 @@ export default function App() {
 
       <main className="main">
         <div className="mobile-topbar">
-          <button className="mobile-back" onClick={() => setTab('dashboard')} disabled={onDashboard} aria-label="Back to dashboard">←</button>
+          <button className="mobile-back" onClick={goBack} disabled={onDashboard} aria-label="Back">←</button>
           <strong>{onDashboard ? 'yane' : current?.label || 'yane'}</strong>
           <button className="mobile-logout" onClick={logout}>Exit</button>
         </div>
         <AnimatePresence mode="wait">
-          {tab === 'dashboard' && <Page id="dashboard"><Dashboard onNavigate={setTab} user={user} /></Page>}
+          {tab === 'dashboard' && <Page id="dashboard"><Dashboard onNavigate={navigate} user={user} /></Page>}
           {tab === 'account' && <Page id="account"><Account user={user} onLogout={logout} /></Page>}
           {tab === 'properties' && <Page id="properties"><Properties /></Page>}
           {tab === 'units' && <Page id="units"><Units /></Page>}
@@ -235,7 +257,7 @@ export default function App() {
         </AnimatePresence>
         <div className="shortcut-bar" aria-label="Quick navigation">
           {SHORTCUTS.map((t) => (
-            <button key={t.id} className={tab === t.id ? 'shortcut active' : 'shortcut'} onClick={() => setTab(t.id)} title={t.label}>
+            <button key={t.id} className={tab === t.id ? 'shortcut active' : 'shortcut'} onClick={() => navigate(t.id)} title={t.label}>
               <span className="shortcut-icon">{t.icon}</span>
               <span className="shortcut-label">{t.label}</span>
             </button>
