@@ -71,7 +71,7 @@ const ADMIN_GROUP = {
   ],
 }
 
-const SHORTCUT_IDS = ['dashboard', 'leads', 'tenants', 'payments', 'renewals', 'reports']
+const SHORTCUT_IDS = ['dashboard', 'properties', 'units', 'tenants', 'renewals', 'reports']
 const SHORTCUTS = NAV_GROUPS.flatMap((g) => g.items).filter((t) => SHORTCUT_IDS.includes(t.id))
 
 const IDLE_TIMEOUT_MS = 3 * 60 * 1000
@@ -141,6 +141,8 @@ export default function App() {
   const isAdmin = user.role === 'admin'
   const groups = isAdmin ? [...NAV_GROUPS, ADMIN_GROUP] : NAV_GROUPS
   const initials = (user.full_name || user.username || 'U').split(' ').map((s) => s[0]).join('').slice(0, 2).toUpperCase()
+  const current = groups.flatMap((g) => g.items).find((t) => t.id === tab)
+  const onDashboard = tab === 'dashboard'
 
   function Page({ id, children }) {
     return (
@@ -209,6 +211,11 @@ export default function App() {
       </motion.aside>
 
       <main className="main">
+        <div className="mobile-topbar">
+          <button className="mobile-back" onClick={() => setTab('dashboard')} disabled={onDashboard} aria-label="Back to dashboard">←</button>
+          <strong>{onDashboard ? 'yane' : current?.label || 'yane'}</strong>
+          <button className="mobile-logout" onClick={logout}>Exit</button>
+        </div>
         <AnimatePresence mode="wait">
           {tab === 'dashboard' && <Page id="dashboard"><Dashboard onNavigate={setTab} user={user} /></Page>}
           {tab === 'account' && <Page id="account"><Account user={user} onLogout={logout} /></Page>}

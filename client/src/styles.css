@@ -566,7 +566,35 @@ tbody tr:hover { background: #fffdf9; }
   .main { padding-bottom: calc(env(safe-area-inset-bottom) + 132px); }
 }
 
+.mobile-topbar { display: none; }
+
 /* ---------- Mobile overflow fixes ---------- */
+@media (max-width: 760px) {
+  .mobile-topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    position: sticky; top: 0; z-index: 35;
+    margin: calc(-1 * env(safe-area-inset-top) - 12px) -12px 14px;
+    padding: calc(env(safe-area-inset-top) + 10px) 14px 10px;
+    background: var(--bg); border-bottom: 1px solid var(--line);
+  }
+  .mobile-topbar strong { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+  .mobile-back, .mobile-logout {
+    border: 0; background: var(--panel); color: var(--ink);
+    border-radius: 999px; padding: 8px 14px; min-height: 40px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  .mobile-back:disabled { opacity: 0.35; cursor: default; }
+  .mobile-logout { color: var(--danger); }
+  .shortcut-bar { display: none; }
+  .main { padding: 12px 12px calc(env(safe-area-inset-bottom) + 78px); }
+}
+@media (min-width: 360px) and (max-width: 600px) {
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat .value { font-size: 18px; }
+  .stat .label { font-size: 9.5px; }
+}
+
 .app, .main, .card { min-width: 0; max-width: 100%; }
 @media (max-width: 760px) {
   .card-title { flex-wrap: wrap; }
