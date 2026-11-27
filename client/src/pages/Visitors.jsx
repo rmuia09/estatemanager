@@ -77,13 +77,14 @@ export default function Visitors() {
                 <div className="tbl-wrap">
                   <table>
                     <thead>
-                      <tr><th>When</th><th>IP</th><th>Path</th><th>Device</th><th>Browser</th></tr>
+                      <tr><th>When</th><th>IP</th><th>Stamp</th><th>Path</th><th>Device</th><th>Browser</th></tr>
                     </thead>
                     <tbody>
                       {pageItems.map((v) => (
                         <tr key={v.id}>
                           <td data-label="When" className="small muted">{v.created_at}</td>
                           <td data-label="IP" className="small mono">{v.ip || '—'}</td>
+                          <td data-label="Stamp" className="small mono">{v.stamp || '—'}</td>
                           <td data-label="Path" className="small">{v.path}</td>
                           <td data-label="Device"><span className="badge neutral">{v.device}</span></td>
                           <td data-label="Browser" className="small">{v.browser}</td>

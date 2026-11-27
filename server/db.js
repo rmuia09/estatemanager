@@ -129,6 +129,7 @@ CREATE TABLE IF NOT EXISTS visits (
   created_at TEXT DEFAULT (datetime('now')),
   path       TEXT DEFAULT '/',
   ip         TEXT,
+  device_id  TEXT,
   user_agent TEXT
 );
 
@@ -184,6 +185,9 @@ function deleteUnitCascade(unitId) {
 }
 
 function migrate() {
+  if (!columnExists('visits', 'device_id')) {
+    db.exec('ALTER TABLE visits ADD COLUMN device_id TEXT')
+  }
   if (!columnExists('users', 'email')) {
     db.exec('ALTER TABLE users ADD COLUMN email TEXT')
   }
@@ -371,9 +375,9 @@ export function logAudit({ user_id, username }, action, entity_type, entity_id, 
 }
 
 let visitInsertCount = 0
-export function logVisit({ path = '/', ip = '', user_agent = '' }) {
+export function logVisit({ path = '/', ip = '', user_agent = '', device_id = '' }) {
   try {
-    db.prepare('INSERT INTO visits (path, ip, user_agent) VALUES (?, ?, ?)').run(path, ip || '', user_agent || '')
+    db.prepare('INSERT INTO visits (path, ip, device_id, user_agent) VALUES (?, ?, ?, ?)').run(path, ip || '', device_id || '', user_agent || '')
     visitInsertCount++
     if (visitInsertCount % 200 === 0) pruneVisits()
   } catch (e) {

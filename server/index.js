@@ -27,9 +27,12 @@ app.use((req, res, next) => {
     !STATIC_PREFIXES.some((p) => req.path.startsWith(p)) && !STATIC_NAMES.has(req.path)
   ) {
     const fwd = (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+    const did = (req.headers.cookie || '')
+      .split(';').map((c) => c.trim()).find((c) => c.startsWith('yane_did='))
     logVisit({
       path: req.path,
       ip: fwd || req.ip || '',
+      device_id: did ? decodeURIComponent(did.slice('yane_did='.length)) : '',
       user_agent: req.get('user-agent') || ''
     })
   }
@@ -1240,7 +1243,15 @@ app.get('/api/visits', requireAdmin, (req, res) => {
     const mobile = /Mobile|Android|iPhone|iPod/i.test(ua)
     const tablet = /iPad|Tablet/i.test(ua)
     const bot = /bot|curl|wget|python-requests|Postman|httpclient|Googlebot|facebookexternalhit/i.test(ua)
-    const device = bot ? 'bot / script' : tablet ? 'tablet' : mobile ? 'phone' : 'desktop'
+    const device = bot ? 'bot / script'
+      : /iPhone|iPod/i.test(ua) ? 'iPhone'
+      : /iPad/i.test(ua) ? 'iPad'
+      : /Android.*Mobile/i.test(ua) ? 'Android phone'
+      : /Android/i.test(ua) ? 'Android tablet'
+      : /Mac OS X|Macintosh/i.test(ua) ? 'Mac'
+      : /Windows/i.test(ua) ? 'Windows PC'
+      : /Linux/i.test(ua) ? 'Linux PC'
+      : tablet ? 'tablet' : mobile ? 'phone' : 'desktop'
     const browser = ua.includes('Edg/') ? 'Edge' : ua.includes('OPR/') || ua.includes('Opera') ? 'Opera'
       : ua.includes('Firefox/') ? 'Firefox' : ua.includes('Chrome/') ? 'Chrome'
       : ua.includes('Safari/') ? 'Safari' : ua.includes('facebookexternalhit') ? 'Facebook'
@@ -1254,8 +1265,8 @@ app.get('/api/visits', requireAdmin, (req, res) => {
     "SELECT substr(created_at,1,10) AS day, COUNT(*) AS views, COUNT(DISTINCT ip) AS uniques FROM visits WHERE created_at >= date('now','-29 day') GROUP BY day ORDER BY day"
   ).all()
   const byPath = db.prepare('SELECT path, COUNT(*) AS views FROM visits GROUP BY path ORDER BY views DESC LIMIT 10').all()
-  const recent = db.prepare('SELECT id, created_at, path, ip, user_agent FROM visits ORDER BY id DESC LIMIT 200').all()
-    .map((r) => ({ ...classify(r.user_agent), id: r.id, created_at: r.created_at, path: r.path, ip: r.ip }))
+  const recent = db.prepare('SELECT id, created_at, path, ip, device_id, user_agent FROM visits ORDER BY id DESC LIMIT 200').all()
+    .map((r) => ({ ...classify(r.user_agent), id: r.id, created_at: r.created_at, path: r.path, ip: r.ip, stamp: r.device_id ? String(r.device_id).slice(0, 10) : '' }))
   res.json({ total, unique_ips: uniqueIps, last24h, by_day: byDay, by_path: byPath, recent })
 })
 
