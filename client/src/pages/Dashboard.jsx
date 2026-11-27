@@ -54,6 +54,10 @@ export default function Dashboard({ onNavigate }) {
           <h2>Dashboard</h2>
           <p>Overview of rentals, income and pending actions</p>
         </div>
+        <div className="head-actions">
+          <button className="btn small" onClick={() => onNavigate('payments')}>+ Record payment</button>
+          <button className="btn small secondary" onClick={() => onNavigate('tenants')}>+ Add tenant</button>
+        </div>
       </div>
 
       <div className="stats">
@@ -76,6 +80,7 @@ export default function Dashboard({ onNavigate }) {
           <div className="label">Collected this month</div>
           <div className="value"><NumberCounter value={s.collectedMonth} prefix="KSh " /></div>
           <div className="sub"><NumberCounter value={monthPct} suffix="%" /> of expected</div>
+          <div className="progress" aria-label={`${monthPct}% collected`}><span style={{ width: `${Math.min(monthPct, 100)}%` }} /></div>
         </Stat>
         {s.monthOutstanding > 0 && (
           <Stat delay={0.29} className="warn">
@@ -113,7 +118,7 @@ export default function Dashboard({ onNavigate }) {
                     <td data-label="Property">{p.property_name}</td>
                     <td data-label="Unit">{p.unit_number}</td>
                     <td data-label="Tenant">{p.tenant_name || '—'}</td>
-                    <td data-label="Method">{p.method}</td>
+                    <td data-label="Method"><span className={`method method-${String(p.method).toLowerCase().replace(/[^a-z]/g, '')}`}>{p.method}</span></td>
                     <td data-label="Amount" className="num">{ksh(p.amount)}</td>
                   </motion.tr>
                 ))}
@@ -147,7 +152,7 @@ export default function Dashboard({ onNavigate }) {
                 <span className={`badge ${l.days_left < 0 ? 'danger' : l.days_left <= 30 ? 'warn' : 'neutral'}`}>
                   {l.days_left < 0 ? 'Overdue' : `${l.days_left}d left`}
                 </span>
-                {!l.notice_sent && <span className="badge danger">notice</span>}
+                <button className="btn small secondary" onClick={() => onNavigate('renewals')}>Renew</button>
               </motion.div>
             ))
           )}

@@ -71,6 +71,9 @@ const ADMIN_GROUP = {
   ],
 }
 
+const SHORTCUT_IDS = ['dashboard', 'leads', 'tenants', 'payments', 'renewals', 'reports']
+const SHORTCUTS = NAV_GROUPS.flatMap((g) => g.items).filter((t) => SHORTCUT_IDS.includes(t.id))
+
 const IDLE_TIMEOUT_MS = 3 * 60 * 1000
 
 export default function App() {
@@ -223,6 +226,14 @@ export default function App() {
           {tab === 'users' && isAdmin && <Page id="users"><Users /></Page>}
           {tab === 'visitors' && isAdmin && <Page id="visitors"><Visitors /></Page>}
         </AnimatePresence>
+        <div className="shortcut-bar" aria-label="Quick navigation">
+          {SHORTCUTS.map((t) => (
+            <button key={t.id} className={tab === t.id ? 'shortcut active' : 'shortcut'} onClick={() => setTab(t.id)} title={t.label}>
+              <span className="shortcut-icon">{t.icon}</span>
+              <span className="shortcut-label">{t.label}</span>
+            </button>
+          ))}
+        </div>
       </main>
     </div>
   )
