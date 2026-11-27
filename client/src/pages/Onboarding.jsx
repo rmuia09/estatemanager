@@ -23,7 +23,7 @@ export default function Onboarding() {
       </div>
 
       {result && (
-        <div className="card" style={{ borderColor: '#b7e4c3' }}>
+        <div className="card" style={{ borderColor: '#e3d3bc' }}>
           <h3>Tenancy created</h3>
           <div className="preview-box">
             <div>Tenant: <strong>{result.tenant_name}</strong></div>
