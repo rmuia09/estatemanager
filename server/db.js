@@ -132,6 +132,34 @@ CREATE TABLE IF NOT EXISTS visits (
   user_agent TEXT
 );
 
+CREATE TABLE IF NOT EXISTS leads (
+  id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+  name               TEXT NOT NULL,
+  phone              TEXT DEFAULT '',
+  email              TEXT DEFAULT '',
+  source             TEXT DEFAULT 'walk_in',
+  stage              TEXT DEFAULT 'new',
+  unit_id            INTEGER REFERENCES units(id) ON DELETE SET NULL,
+  interest           TEXT DEFAULT '',
+  notes              TEXT DEFAULT '',
+  next_action_at     TEXT,
+  lost_reason        TEXT,
+  converted_lease_id INTEGER REFERENCES leases(id) ON DELETE SET NULL,
+  created_at         TEXT DEFAULT (datetime('now')),
+  updated_at         TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS lead_events (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  lead_id    INTEGER NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
+  kind       TEXT NOT NULL DEFAULT 'note',
+  detail     TEXT DEFAULT '',
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_leads_stage   ON leads(stage);
+CREATE INDEX IF NOT EXISTS idx_lead_events   ON lead_events(lead_id);
+
 CREATE INDEX IF NOT EXISTS idx_units_property   ON units(property_id);
 CREATE INDEX IF NOT EXISTS idx_leases_unit      ON leases(unit_id);
 CREATE INDEX IF NOT EXISTS idx_leases_status    ON leases(status);

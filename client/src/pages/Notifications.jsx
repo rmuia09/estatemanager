@@ -9,7 +9,7 @@ const statusBadge = (s) =>
   : s === 'simulated' ? <span className="badge simulated">simulated</span>
   : <span className="badge neutral">{s}</span>
 
-export default function Notifications() {
+export default function Notifications({ embedded = false }) {
   const { data: notifs, loading, error, refresh } = useResource('/api/notifications?limit=300')
   const { data: stats, refresh: refreshStats } = useResource('/api/notifications/stats')
   const [msg, setMsg] = useState('')
@@ -44,13 +44,20 @@ export default function Notifications() {
 
   return (
     <div>
-      <div className="page-head">
-        <div>
-          <h2>Notifications</h2>
-          <p>Renewal reminders, rent-due messages and delivery status (SMS / email)</p>
+      {embedded ? (
+        <div className="card-title" style={{ marginBottom: 14 }}>
+          <h3>Notifications</h3>
+          <button className="btn small" disabled={busy} onClick={runReminders}>{busy ? 'Running…' : '▶ Run automated reminders now'}</button>
         </div>
-        <button className="btn" disabled={busy} onClick={runReminders}>{busy ? 'Running…' : '▶ Run automated reminders now'}</button>
-      </div>
+      ) : (
+        <div className="page-head">
+          <div>
+            <h2>Notifications</h2>
+            <p>Renewal reminders, rent-due messages and delivery status (SMS / email)</p>
+          </div>
+          <button className="btn" disabled={busy} onClick={runReminders}>{busy ? 'Running…' : '▶ Run automated reminders now'}</button>
+        </div>
+      )}
 
       {msg && <div className="success-banner">{msg}</div>}
       {err && <div className="error-banner">{err}</div>}

@@ -1,4 +1,4 @@
-/* Estate Manager service worker — app-shell cache, API always network. */
+/* yane service worker — app-shell cache, API always network. */
 const CACHE = 'estate-v1'
 const SHELL = ['/', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png']
 

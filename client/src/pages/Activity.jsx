@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useResource } from '../api.js'
 import Paginator, { usePagination } from '../components/Paginator.jsx'
 
-export default function Activity() {
+export default function Activity({ embedded = false }) {
   const { data: entries, loading, error } = useResource('/api/activity?limit=400')
   const [fText, setFText] = useState('')
   const [fAction, setFAction] = useState('')
@@ -29,12 +29,18 @@ export default function Activity() {
 
   return (
     <div>
-      <div className="page-head">
-        <div>
-          <h2>Activity &amp; audit trail</h2>
-          <p>Every major action performed by each user — who did what, when and why</p>
+      {embedded ? (
+        <div className="card-title" style={{ marginBottom: 14 }}>
+          <h3>Activity &amp; audit trail</h3>
         </div>
-      </div>
+      ) : (
+        <div className="page-head">
+          <div>
+            <h2>Activity &amp; audit trail</h2>
+            <p>Every major action performed by each user — who did what, when and why</p>
+          </div>
+        </div>
+      )}
 
       {loading && <div className="loading">Loading activity…</div>}
       {error && <div className="error-banner">{error}</div>}

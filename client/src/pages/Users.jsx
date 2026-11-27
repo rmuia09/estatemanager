@@ -68,7 +68,7 @@ export default function Users() {
       <div className="page-head">
         <div>
           <h2>Users</h2>
-          <p>Manage who can sign in to Estate Manager</p>
+          <p>Manage who can sign in to yane</p>
         </div>
         <button className="btn" onClick={openAdd}>+ Add user</button>
       </div>

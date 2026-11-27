@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Properties from './pages/Properties.jsx'
 import Units from './pages/Units.jsx'
 import Tenants from './pages/Tenants.jsx'
+import Leads from './pages/Leads.jsx'
 import Onboarding from './pages/Onboarding.jsx'
 import Payments from './pages/Payments.jsx'
 import Reports from './pages/Reports.jsx'
@@ -15,24 +16,60 @@ import Renewals from './pages/Renewals.jsx'
 import Utilities from './pages/Utilities.jsx'
 import Notifications from './pages/Notifications.jsx'
 import Activity from './pages/Activity.jsx'
+import Alerts from './pages/Alerts.jsx'
 import Settings from './pages/Settings.jsx'
 import Users from './pages/Users.jsx'
 import Visitors from './pages/Visitors.jsx'
+import YaneMark from './components/YaneMark.jsx'
 
-const TABS = [
-  { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-  { id: 'properties', label: 'Properties', icon: '🏘️' },
-  { id: 'units', label: 'Units', icon: '🏠' },
-  { id: 'tenants', label: 'Tenants', icon: '👥' },
-  { id: 'onboarding', label: 'Onboarding', icon: '🚪' },
-  { id: 'payments', label: 'Rent Payments', icon: '💰' },
-  { id: 'reports', label: 'Reports', icon: '📈' },
-  { id: 'renewals', label: 'Lease Renewals', icon: '📅' },
-  { id: 'utilities', label: 'Utilities', icon: '💧' },
-  { id: 'notifications', label: 'Notifications', icon: '🔔' },
-  { id: 'activity', label: 'Activity', icon: '🧾' },
-  { id: 'settings', label: 'Settings', icon: '⚙️' }
+const NAV_GROUPS = [
+  {
+    label: null,
+    items: [{ id: 'dashboard', label: 'Dashboard', icon: '📊' }],
+  },
+  {
+    label: 'Portfolio',
+    items: [
+      { id: 'properties', label: 'Properties', icon: '🏘️' },
+      { id: 'units', label: 'Units', icon: '🏠' },
+    ],
+  },
+  {
+    label: 'People',
+    items: [
+      { id: 'tenants', label: 'Tenants', icon: '👥' },
+      { id: 'leads', label: 'Leads', icon: '🎯' },
+      { id: 'onboarding', label: 'Onboarding', icon: '🚪' },
+    ],
+  },
+  {
+    label: 'Money',
+    items: [
+      { id: 'payments', label: 'Rent Payments', icon: '💰' },
+      { id: 'utilities', label: 'Utilities', icon: '💧' },
+      { id: 'reports', label: 'Reports', icon: '📈' },
+    ],
+  },
+  {
+    label: 'Activity',
+    items: [
+      { id: 'renewals', label: 'Renewals', icon: '📅' },
+      { id: 'alerts', label: 'Alerts', icon: '🔔' },
+    ],
+  },
+  {
+    label: 'System',
+    items: [{ id: 'settings', label: 'Settings', icon: '⚙️' }],
+  },
 ]
+
+const ADMIN_GROUP = {
+  label: 'Admin',
+  items: [
+    { id: 'users', label: 'Users', icon: '🔐' },
+    { id: 'visitors', label: 'Visitors', icon: '👀' },
+  ],
+}
 
 const IDLE_TIMEOUT_MS = 3 * 60 * 1000
 
@@ -99,7 +136,7 @@ export default function App() {
   }
 
   const isAdmin = user.role === 'admin'
-  const tabs = isAdmin ? [...TABS, { id: 'users', label: 'Users', icon: '🔐' }, { id: 'visitors', label: 'Visitors', icon: '👀' }] : TABS
+  const groups = isAdmin ? [...NAV_GROUPS, ADMIN_GROUP] : NAV_GROUPS
   const initials = (user.full_name || user.username || 'U').split(' ').map((s) => s[0]).join('').slice(0, 2).toUpperCase()
 
   function Page({ id, children }) {
@@ -125,23 +162,28 @@ export default function App() {
         transition={{ duration: 0.5, ease: design.motion.easings.smooth }}
       >
         <div className="brand">
-          <div className="brand-logo">🏢</div>
+          <YaneMark size={46} />
           <div>
-            <h1>Estate Manager</h1>
-            <p>Rentals, leases &amp; utilities</p>
+            <h1>yane</h1>
+            <p>Rent, reconciled.</p>
           </div>
         </div>
 
         <nav>
-          {tabs.map((t) => (
-            <motion.button
-              key={t.id}
-              className={tab === t.id ? 'nav-item active' : 'nav-item'}
-              onClick={() => setTab(t.id)}
-              whileHover={{ background: 'rgba(255,255,255,0.12)' }}
-            >
-              <span className="nav-icon">{t.icon}</span> {t.label}
-            </motion.button>
+          {groups.map((group) => (
+            <div className="nav-group" key={group.label || 'main'}>
+              {group.label && <div className="nav-group-label">{group.label}</div>}
+              {group.items.map((t) => (
+                <motion.button
+                  key={t.id}
+                  className={tab === t.id ? 'nav-item active' : 'nav-item'}
+                  onClick={() => setTab(t.id)}
+                  whileHover={{ background: 'rgba(255,255,255,0.12)' }}
+                >
+                  <span className="nav-icon">{t.icon}</span> {t.label}
+                </motion.button>
+              ))}
+            </div>
           ))}
           <button className="nav-item tab-logout" onClick={logout} title="Log out">
             <span className="nav-icon">⏻</span> Logout
@@ -170,13 +212,13 @@ export default function App() {
           {tab === 'properties' && <Page id="properties"><Properties /></Page>}
           {tab === 'units' && <Page id="units"><Units /></Page>}
           {tab === 'tenants' && <Page id="tenants"><Tenants /></Page>}
+          {tab === 'leads' && <Page id="leads"><Leads /></Page>}
           {tab === 'onboarding' && <Page id="onboarding"><Onboarding /></Page>}
           {tab === 'payments' && <Page id="payments"><Payments /></Page>}
           {tab === 'reports' && <Page id="reports"><Reports /></Page>}
           {tab === 'renewals' && <Page id="renewals"><Renewals /></Page>}
           {tab === 'utilities' && <Page id="utilities"><Utilities /></Page>}
-          {tab === 'notifications' && <Page id="notifications"><Notifications /></Page>}
-          {tab === 'activity' && <Page id="activity"><Activity /></Page>}
+          {tab === 'alerts' && <Page id="alerts"><Alerts /></Page>}
           {tab === 'settings' && <Page id="settings"><Settings /></Page>}
           {tab === 'users' && isAdmin && <Page id="users"><Users /></Page>}
           {tab === 'visitors' && isAdmin && <Page id="visitors"><Visitors /></Page>}

@@ -1,17 +1,23 @@
 // Design system — the "frontend design skill" layer from the guide:
 // real type scale, 8px spacing grid, color tokens, component patterns.
+//
+// Color roles follow the Yane brand sheet (60-30-10):
+//   60% dominant  — Cream surfaces + Espresso ink (keep them quiet)
+//   30% secondary — Yane Brown: sidebar, ghost buttons, chips, focus rings
+//   10% accent    — Clay Tan for graphics; CTAs use Yane Brown
 export const design = {
   colors: {
-    primary: '#0f766e',
-    primaryDark: '#115e59',
-    primarySoft: '#edf7f6',
-    accent: '#e74c3c',
-    accentSoft: '#fdecea',
-    ink: '#1c2b36',
-    muted: '#6b7785',
-    line: '#e4e9ef',
-    bg: '#f4f6f9',
-    panel: '#ffffff',
+    primary: '#6b3f2a',
+    primaryDark: '#553020',
+    primarySoft: '#f0e6d8',
+    accent: '#d9b48a',
+    accentDark: '#b98f5e',
+    accentSoft: '#f7f2ec',
+    ink: '#2b1b14',
+    muted: '#8a7a68',
+    line: '#e9dfd2',
+    bg: '#f7f2ec',
+    panel: '#fffdf9',
     warn: '#b45309',
     warnSoft: '#fef3e2',
     danger: '#b91c1c',

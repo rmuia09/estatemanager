@@ -153,7 +153,7 @@ export default function Settings() {
               </div>
               <div className="field" style={{ gridColumn: '1 / -1' }}>
                 <label>From address</label>
-                <input value={email.from} onChange={(e) => setEmail({ ...email, from: e.target.value })} placeholder="Estate Manager <no-reply@example.com>" />
+                <input value={email.from} onChange={(e) => setEmail({ ...email, from: e.target.value })} placeholder="yane <no-reply@example.com>" />
               </div>
             </div>
           </div>

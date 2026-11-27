@@ -415,9 +415,137 @@ app.delete('/api/tenants/:id', (req, res) => {
   res.json({ ok: true })
 })
 
+/* ---------------- Leads (lead-to-lease pipeline) ---------------- */
+const LEAD_STAGES = ['new', 'contacted', 'viewing', 'application', 'won', 'lost']
+const LEAD_SOURCES = ['walk_in', 'referral', 'whatsapp', 'advert', 'signboard', 'online', 'other']
+
+function leadEvent(leadId, kind, detail) {
+  db.prepare('INSERT INTO lead_events (lead_id, kind, detail) VALUES (?, ?, ?)').run(leadId, kind, detail || '')
+}
+
+function getLead(id) {
+  return db.prepare(`
+    SELECT l.*, u.unit_number, u.monthly_rent AS unit_rent, p.name AS property_name
+    FROM leads l
+    LEFT JOIN units u ON u.id = l.unit_id
+    LEFT JOIN properties p ON p.id = u.property_id
+    WHERE l.id = ?
+  `).get(id)
+}
+
+app.get('/api/leads', (req, res) => {
+  const rows = db.prepare(`
+    SELECT l.*,
+      u.unit_number, u.monthly_rent AS unit_rent, p.name AS property_name,
+      (SELECT MAX(created_at) FROM lead_events e WHERE e.lead_id = l.id) last_activity_at,
+      (SELECT COUNT(*) FROM lead_events e WHERE e.lead_id = l.id) event_count
+    FROM leads l
+    LEFT JOIN units u ON u.id = l.unit_id
+    LEFT JOIN properties p ON p.id = u.property_id
+    ORDER BY CASE l.stage WHEN 'won' THEN 1 WHEN 'lost' THEN 2 ELSE 0 END, l.updated_at DESC
+  `).all()
+  res.json(rows)
+})
+
+app.get('/api/leads/:id', (req, res) => {
+  const lead = getLead(req.params.id)
+  if (!lead) return res.status(404).json({ error: 'lead not found' })
+  lead.events = db.prepare('SELECT * FROM lead_events WHERE lead_id = ? ORDER BY id DESC').all(lead.id)
+  res.json(lead)
+})
+
+app.post('/api/leads', (req, res) => {
+  const { name, phone, email, source, unit_id, interest, notes, next_action_at } = req.body || {}
+  if (!name || !String(name).trim()) return res.status(400).json({ error: 'name is required' })
+  if (source && !LEAD_SOURCES.includes(source)) return res.status(400).json({ error: 'unknown source' })
+  let unitId = null
+  if (unit_id) {
+    const unit = db.prepare('SELECT id FROM units WHERE id = ?').get(Number(unit_id))
+    if (!unit) return res.status(400).json({ error: 'unit not found' })
+    unitId = unit.id
+  }
+  const r = db.prepare(`
+    INSERT INTO leads (name, phone, email, source, unit_id, interest, notes, next_action_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(String(name).trim(), phone || '', email || '', source || 'walk_in', unitId, interest || '', notes || '', next_action_at || null)
+  leadEvent(r.lastInsertRowid, 'created', `Lead added via ${source || 'walk_in'}`)
+  logAudit(req.user, 'create', 'lead', r.lastInsertRowid, 'Created lead', String(name).trim())
+  res.json({ id: r.lastInsertRowid })
+})
+
+app.patch('/api/leads/:id', (req, res) => {
+  const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(req.params.id)
+  if (!lead) return res.status(404).json({ error: 'lead not found' })
+  const b = req.body || {}
+  if (b.source && !LEAD_SOURCES.includes(b.source)) return res.status(400).json({ error: 'unknown source' })
+  let unitId = lead.unit_id
+  if (b.unit_id !== undefined) {
+    if (b.unit_id === null || b.unit_id === '') unitId = null
+    else {
+      const unit = db.prepare('SELECT id FROM units WHERE id = ?').get(Number(b.unit_id))
+      if (!unit) return res.status(400).json({ error: 'unit not found' })
+      unitId = unit.id
+    }
+  }
+  db.prepare(`
+    UPDATE leads SET name = ?, phone = ?, email = ?, source = ?, unit_id = ?,
+      interest = ?, notes = ?, next_action_at = ?, updated_at = datetime('now')
+    WHERE id = ?
+  `).run(
+    b.name != null ? String(b.name).trim() : lead.name,
+    b.phone != null ? b.phone : lead.phone,
+    b.email != null ? b.email : lead.email,
+    b.source != null ? b.source : lead.source,
+    unitId,
+    b.interest != null ? b.interest : lead.interest,
+    b.notes != null ? b.notes : lead.notes,
+    b.next_action_at !== undefined ? (b.next_action_at || null) : lead.next_action_at,
+    lead.id
+  )
+  logAudit(req.user, 'update', 'lead', lead.id, 'Updated lead', b.name || lead.name)
+  res.json({ ok: true })
+})
+
+app.post('/api/leads/:id/stage', (req, res) => {
+  const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(req.params.id)
+  if (!lead) return res.status(404).json({ error: 'lead not found' })
+  const { stage, lost_reason } = req.body || {}
+  if (!LEAD_STAGES.includes(stage)) return res.status(400).json({ error: 'unknown stage' })
+  if (stage === 'lost' && !lost_reason) return res.status(400).json({ error: 'lost_reason is required when marking a lead lost' })
+  if (lead.stage === stage) return res.json({ ok: true })
+  db.prepare("UPDATE leads SET stage = ?, lost_reason = ?, updated_at = datetime('now') WHERE id = ?")
+    .run(stage, stage === 'lost' ? (lost_reason || '') : null, lead.id)
+  const detail = stage === 'lost' ? `Moved to lost — ${lost_reason}` : `Moved ${lead.stage} → ${stage}`
+  leadEvent(lead.id, 'stage', detail)
+  logAudit(req.user, 'update', 'lead', lead.id, 'Stage change', `${lead.name}: ${detail}`)
+  if (stage === 'won') captureEvent(req.user, 'lead_converted', { lead_id: lead.id, unit_id: lead.unit_id })
+  res.json({ ok: true })
+})
+
+app.post('/api/leads/:id/events', (req, res) => {
+  const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(req.params.id)
+  if (!lead) return res.status(404).json({ error: 'lead not found' })
+  const { kind, detail } = req.body || {}
+  if (!detail || !String(detail).trim()) return res.status(400).json({ error: 'detail is required' })
+  leadEvent(lead.id, kind || 'note', String(detail).trim())
+  db.prepare("UPDATE leads SET updated_at = datetime('now') WHERE id = ?").run(lead.id)
+  res.json({ ok: true })
+})
+
+app.delete('/api/leads/:id', (req, res) => {
+  const reason = requireReason(req, res)
+  if (reason === null) return
+  const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(req.params.id)
+  if (!lead) return res.status(404).json({ error: 'lead not found' })
+  db.prepare('DELETE FROM lead_events WHERE lead_id = ?').run(lead.id)
+  db.prepare('DELETE FROM leads WHERE id = ?').run(lead.id)
+  logAudit(req.user, 'delete', 'lead', lead.id, reason, lead.name)
+  res.json({ ok: true })
+})
+
 /* ---------------- Onboarding ---------------- */
 app.post('/api/onboarding', (req, res) => {
-  const { unit_id, property_id, unit_number, unit_type, tenant, start_date, duration_months, monthly_rent, renewal_months } = req.body || {}
+  const { unit_id, property_id, unit_number, unit_type, tenant, start_date, duration_months, monthly_rent, renewal_months, lead_id } = req.body || {}
   if (!tenant || !tenant.name) return res.status(400).json({ error: 'tenant name is required' })
   if (!start_date) return res.status(400).json({ error: 'date of joining is required' })
   const months = Math.max(1, Number(duration_months) || 12)
@@ -448,6 +576,18 @@ app.post('/api/onboarding', (req, res) => {
   const leaseId = db.prepare('INSERT INTO leases (unit_id, tenant_id, start_date, end_date, monthly_rent, renewal_months, status) VALUES (?, ?, ?, ?, ?, ?, ?)')
     .run(unit.id, tenantId, toDateStr(start), toDateStr(end), rent, renewMonths, 'active').lastInsertRowid
   db.prepare('UPDATE units SET status = ?, monthly_rent = ? WHERE id = ?').run('occupied', rent, unit.id)
+
+  let convertedLead = null
+  if (lead_id) {
+    convertedLead = db.prepare('SELECT * FROM leads WHERE id = ?').get(Number(lead_id))
+    if (convertedLead && convertedLead.stage !== 'won') {
+      db.prepare("UPDATE leads SET stage = 'won', lost_reason = NULL, converted_lease_id = ?, unit_id = ?, updated_at = datetime('now') WHERE id = ?")
+        .run(leaseId, unit.id, convertedLead.id)
+      leadEvent(convertedLead.id, 'stage', `Won — onboarded into ${unit.unit_number} (lease #${leaseId})`)
+    } else {
+      convertedLead = null
+    }
+  }
 
   logAudit(req.user, 'create', 'lease', leaseId, 'Onboarded tenant', `${tenant.name} → ${unit.unit_number}`)
   captureEvent(req.user, 'tenant_onboarded', {

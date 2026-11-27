@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>yane — rent, reconciled. Nothing unrecorded.</title>
+<meta name="description" content="yane — rental management for landlords and agents: leads, tenants, leases, rent payments, utilities and reports. Rent, reconciled. Nothing unrecorded.">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    /* Yane brand palette — 60% Cream paper neutrals, 30% Yane Brown brand,
+       10% Clay Tan accent, Espresso ink */
+    --paper: #f7f2ec;
+    --panel: #fffdf8;
+    --ink: #2b1b14;
+    --muted: #8a7a68;
+    --line: #e9dfd2;
+    --accent: #6b3f2a;
+    --accent-dark: #553020;
+    --accent-soft: #f0e6d8;
+    --pop: #6b3f2a;
+    --pop-dark: #553020;
+    --pop-soft: #f0e6d8;
+    --clay: #d9b48a;
+    --blush: #f7e0dd;
+    --butter: #f9edd2;
+    --sky: #e7eff3;
+    --radius: 18px;
+    --shadow: 0 2px 4px rgba(43, 27, 20, 0.05), 0 10px 28px -14px rgba(58, 42, 26, 0.28);
+    --shadow-hover: 0 16px 36px -16px rgba(58, 42, 26, 0.36);
+  }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink); background: var(--paper); line-height: 1.5; letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* subtle paper grain over the whole page */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.5;
+    background-image: radial-gradient(rgba(120, 90, 60, 0.055) 1px, transparent 1.4px),
+      radial-gradient(rgba(120, 90, 60, 0.035) 1px, transparent 1.4px);
+    background-size: 22px 22px, 34px 34px;
+    background-position: 0 0, 11px 9px;
+  }
+  body > * { position: relative; z-index: 1; }
+  h1, h2, h3 { font-family: 'Space Grotesk', 'Inter', sans-serif; letter-spacing: -0.02em; line-height: 1.15; }
+  a { text-decoration: none; color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Nav ---------- */
+  .nav { position: sticky; top: 0; z-index: 10; background: rgba(250, 246, 238, 0.92); backdrop-filter: blur(8px); border-bottom: 1px dashed var(--line); }
+  .nav-inner { display: flex; align-items: center; gap: 28px; height: 66px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 17px; }
+  .logo-mark { width: 36px; height: 36px; background: #6b3f2a; display: grid; place-items: center; font-size: 17px; border-radius: 46% 54% 52% 48% / 52% 46% 54% 48%; box-shadow: var(--shadow); }
+  .nav-links { display: flex; gap: 22px; font-size: 14px; color: var(--muted); margin-left: 8px; }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-cta { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+  .btn { display: inline-block; border-radius: 12px; padding: 11px 20px; font-size: 14px; font-weight: 700; border: 1px solid transparent; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+  .btn:hover { transform: translateY(-2px) rotate(-0.5deg); box-shadow: var(--shadow-hover); }
+  .btn-ghost { color: var(--accent-dark); }
+  .btn-pop { background: var(--pop); color: #fff; box-shadow: 0 4px 0 #4a2c1c; }
+  .btn-pop:hover { background: var(--pop-dark); box-shadow: 0 2px 0 #4a2c1c; transform: translateY(1px); }
+  .btn-outline { border: 1.5px dashed var(--line); color: var(--ink); background: var(--panel); }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 76px 0 64px; text-align: center; overflow: hidden; position: relative; }
+  .hero .eyebrow { display: inline-block; font-size: 12.5px; font-weight: 700; color: var(--accent-dark); background: var(--butter); border: 1.5px dashed var(--clay); border-radius: 999px; padding: 6px 15px; margin-bottom: 18px; box-shadow: var(--shadow); }
+  .hero h1 { font-size: clamp(34px, 5vw, 52px); font-weight: 800; max-width: 780px; margin: 0 auto 16px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p.sub { font-size: 18px; color: var(--muted); max-width: 620px; margin: 0 auto 28px; }
+  .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .hero-note { font-size: 13px; color: var(--muted); }
+  .hero-fox { position: absolute; bottom: 30px; right: 4%; width: 130px; animation: bob 5s ease-in-out infinite; }
+  @keyframes bob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
+
+  /* ---------- Craft product mock ---------- */
+  .hero-shot { margin: 44px auto 0; max-width: 960px; border-radius: 26px 22px 28px 20px; border: 1.5px solid var(--line); background: var(--panel); box-shadow: var(--shadow-hover); overflow: hidden; text-align: left; transform: rotate(-0.4deg); }
+  .shot-bar { display: flex; gap: 6px; padding: 13px 16px; background: var(--accent-soft); border-bottom: 1.5px dashed var(--line); }
+  .shot-bar i { width: 11px; height: 11px; border-radius: 46% 54% 50% 50% / 52% 48% 52% 48%; background: var(--clay); }
+  .shot-body { display: grid; grid-template-columns: 190px 1fr; min-height: 340px; }
+  .shot-side { background: linear-gradient(180deg, #4a2c1c, #6b3f2a 55%, #3f2517); color: #fff; padding: 18px 14px; font-size: 12.5px; }
+  .shot-side .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 18px; }
+  .shot-side .brand span.mark { background: rgba(255,255,255,.18); border-radius: 40% 60% 55% 45% / 50% 45% 55% 50%; width: 26px; height: 26px; display: grid; place-items: center; }
+  .shot-side .item { padding: 7px 10px; border-radius: 10px; opacity: .82; }
+  .shot-side .item.on { background: rgba(255,255,255,.18); opacity: 1; font-weight: 700; box-shadow: inset 3px 0 0 0 var(--pop); }
+  .shot-main { padding: 20px; background: var(--paper); }
+  .shot-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+  .shot-card { background: var(--panel); border: 1.5px solid var(--line); border-radius: 14px 12px 16px 12px; padding: 12px; }
+  .shot-card .k { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+  .shot-card .v { font-size: 20px; font-weight: 800; margin-top: 2px; }
+  .shot-card.hl { background: var(--pop-soft); border-color: var(--clay); }
+  .shot-card.hl .v { color: var(--pop-dark); }
+  .shot-board { background: var(--panel); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px; }
+  .shot-board .t { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 8px; }
+  .shot-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .shot-col { background: var(--paper); border-radius: 10px; padding: 8px; }
+  .shot-col h5 { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 6px; }
+  .shot-lead { background: #fff; border: 1.5px dashed var(--line); border-radius: 10px; padding: 7px 9px; font-size: 11.5px; margin-bottom: 6px; }
+  .shot-lead b { display: block; font-size: 12px; }
+  .shot-lead .badge { display: inline-block; margin-top: 4px; font-size: 9.5px; font-weight: 700; color: var(--pop-dark); background: var(--pop-soft); border-radius: 999px; padding: 1px 7px; }
+
+  /* ---------- Torn paper divider ---------- */
+  .tear { height: 34px; background: var(--cream-band, var(--accent-soft)); -webkit-mask-image: radial-gradient(14px 18px at 12px 0, #000 98%, transparent), radial-gradient(14px 18px at 36px 0, #000 98%, transparent); -webkit-mask-size: 48px 34px; -webkit-mask-repeat: repeat-x; mask-image: radial-gradient(14px 18px at 12px 0, #000 98%, transparent), radial-gradient(14px 18px at 36px 0, #000 98%, transparent); mask-size: 48px 34px; mask-repeat: repeat-x; }
+
+  /* ---------- Stats band ---------- */
+  .band { background: #2b1b14; color: #fff; padding: 44px 0; border-radius: 30px 26px 0 0; transform: rotate(-0.3deg) scale(1.01); }
+  .band-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }
+  .band .n { font-size: 30px; font-weight: 800; color: #d9b48a; }
+  .band .l { font-size: 13px; color: #c9b39a; margin-top: 2px; }
+
+  /* ---------- Features ---------- */
+  .section { padding: 72px 0; }
+  .section-head { text-align: center; max-width: 640px; margin: 0 auto 44px; position: relative; }
+  .section-head .eyebrow { font-size: 12.5px; font-weight: 700; color: var(--pop-dark); background: var(--pop-soft); border: 1.5px dashed #eccfa4; border-radius: 999px; padding: 6px 15px; display: inline-block; margin-bottom: 14px; }
+  .section-head h2 { font-size: clamp(26px, 3.5vw, 36px); font-weight: 800; margin-bottom: 10px; }
+  .section-head p { color: var(--muted); font-size: 16px; }
+  .hero-hedgehog { position: absolute; width: 96px; right: -34px; top: -30px; transform: rotate(6deg); animation: peek 7s ease-in-out infinite; }
+  @keyframes peek { 0%, 20% { transform: rotate(6deg) translateY(14px); opacity: 0; } 30%, 80% { transform: rotate(4deg) translateY(0); opacity: 1; } 90%, 100% { transform: rotate(6deg) translateY(14px); opacity: 0; } }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .feat { background: var(--panel); border: 1.5px solid var(--line); border-radius: 20px 16px 22px 14px; padding: 26px 24px; transition: transform .15s ease, box-shadow .15s ease; position: relative; }
+  .feat:nth-child(odd) { transform: rotate(-0.5deg); }
+  .feat:nth-child(even) { transform: rotate(0.4deg); }
+  .feat:hover { transform: rotate(0deg) translateY(-4px); box-shadow: var(--shadow-hover); }
+  .feat .ico { width: 46px; height: 46px; border-radius: 44% 56% 52% 48% / 54% 46% 54% 46%; display: grid; place-items: center; font-size: 21px; margin-bottom: 14px; box-shadow: inset 0 0 0 1.5px rgba(107, 63, 42, 0.14); }
+  .feat.blush .ico { background: var(--blush); }
+  .feat.butter .ico { background: var(--butter); }
+  .feat.sky .ico { background: var(--sky); }
+  .feat h3 { font-size: 17px; margin-bottom: 6px; }
+  .feat p { font-size: 14px; color: var(--muted); }
+
+  /* ---------- Pipeline spotlight ---------- */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .split h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 800; margin-bottom: 12px; }
+  .split p { color: var(--muted); margin-bottom: 18px; }
+  .split ul { list-style: none; display: grid; gap: 10px; }
+  .split li { display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; }
+  .split li .tick { color: var(--pop); font-weight: 800; }
+  .split-right { position: relative; }
+  .pipe-mini { background: var(--panel); border: 1.5px solid var(--line); border-radius: 24px 18px 26px 16px; padding: 18px; box-shadow: var(--shadow-hover); display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; transform: rotate(0.5deg); }
+  .pipe-mini .col h5 { font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 8px; }
+  .pipe-mini .lead { background: var(--paper); border: 1.5px dashed var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; font-size: 13px; box-shadow: var(--shadow); }
+  .pipe-mini .lead b { display: block; }
+  .pipe-mini .lead span { font-size: 11.5px; color: var(--muted); }
+  .pipe-mini .lead .badge { display: inline-block; margin-top: 5px; font-size: 10px; font-weight: 700; color: var(--pop-dark); background: var(--pop-soft); border-radius: 999px; padding: 1px 8px; }
+  .hero-otter { position: absolute; width: 120px; bottom: -34px; left: -26px; transform: rotate(-5deg); animation: bob 6s ease-in-out infinite; }
+
+  /* ---------- CTA ---------- */
+  .cta-wrap { position: relative; padding-bottom: 40px; }
+  .cta { background: linear-gradient(135deg, #4a2c1c, #6b3f2a 55%, #3f2517); border-radius: 28px 22px 30px 20px; color: #fff; padding: 56px 40px 64px; text-align: center; box-shadow: var(--shadow-hover); }
+  .cta h2 { font-size: clamp(24px, 3vw, 34px); font-weight: 800; margin-bottom: 10px; }
+  .cta p { color: #e9dcc7; max-width: 520px; margin: 0 auto 24px; }
+  .hero-badger { position: absolute; width: 118px; left: 50%; transform: translateX(-190px); top: -58px; animation: bob 7s ease-in-out infinite; z-index: 2; }
+
+  /* ---------- Footer ---------- */
+  footer { border-top: 1.5px dashed var(--line); padding: 36px 0; color: var(--muted); font-size: 13.5px; }
+  .foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  /* ---------- Squirrel scroll peeker ---------- */
+  .squirrel-peek {
+    position: fixed; right: max(12px, 2vw); bottom: -10px; width: 120px; z-index: 30;
+    pointer-events: none; opacity: 0; transform: translateY(88%) rotate(8deg);
+    transition: transform .45s cubic-bezier(.34,1.56,.64,1), opacity .3s ease;
+    filter: drop-shadow(0 10px 14px rgba(43, 27, 20, 0.25));
+  }
+  .squirrel-peek.popped { opacity: 1; transform: translateY(6%) rotate(-3deg); }
+  .squirrel-peek.pop-wave { animation: wiggle 0.9s ease-in-out .3s; }
+  @keyframes wiggle { 0%, 100% { transform: translateY(6%) rotate(-3deg); } 30% { transform: translateY(2%) rotate(3deg); } 60% { transform: translateY(8%) rotate(-5deg); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-fox, .hero-otter, .hero-badger, .hero-hedgehog, .squirrel-peek { animation: none !important; transition: none; }
+  }
+
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .grid { grid-template-columns: 1fr; }
+    .split { grid-template-columns: 1fr; gap: 28px; }
+    .shot-body { grid-template-columns: 1fr; }
+    .shot-side { display: none; }
+    .shot-cards { grid-template-columns: repeat(2, 1fr); }
+    .shot-cols { grid-template-columns: 1fr; }
+    .pipe-mini { grid-template-columns: 1fr; }
+    .pipe-mini .lead { margin-bottom: 0; }
+    .band-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero-fox { width: 92px; right: 2%; bottom: auto; top: 8px; }
+    .hero-hedgehog { width: 70px; right: -8px; }
+    .hero-otter { position: static; display: block; width: 88px; margin: 12px 0 0 8px; }
+    .hero-badger { width: 88px; transform: translateX(-50%); top: -44px; }
+    .squirrel-peek { width: 92px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="logo" href="/landing.html"><span class="logo-mark"><svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true"><path d="M11 25 L24 13 L37 25" fill="none" stroke="#f7f2ec" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><line x1="15" y1="32" x2="33" y2="32" stroke="#f7f2ec" stroke-width="3.6" stroke-linecap="round"/><line x1="15" y1="39" x2="27" y2="39" stroke="#d9b48a" stroke-width="3.6" stroke-linecap="round"/></svg></span> yane</a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#pipeline">Lead pipeline</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <div class="nav-cta">
+      <a class="btn btn-ghost" href="/login">Sign in</a>
+      <a class="btn btn-pop" href="/login">Start free</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Built for landlords &amp; agents</span>
+    <h1>Rent, reconciled. <em>Nothing unrecorded.</em></h1>
+    <p class="sub">yane keeps every unit, tenant, payment and lead in one calm ledger — from first enquiry to signed lease. Stop juggling WhatsApp threads, notebooks and spreadsheets.</p>
+    <div class="hero-actions">
+      <a class="btn btn-pop" href="/login">Start free — no card needed</a>
+      <a class="btn btn-outline" href="/login">Sign in</a>
+    </div>
+    <p class="hero-note">Set up your first property in under 5 minutes.</p>
+
+    <div class="hero-shot" aria-hidden="true">
+      <div class="shot-bar"><i></i><i></i><i></i></div>
+      <div class="shot-body">
+        <div class="shot-side">
+          <div class="brand"><span class="mark"><svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true"><path d="M11 25 L24 13 L37 25" fill="none" stroke="#f7f2ec" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><line x1="15" y1="32" x2="33" y2="32" stroke="#f7f2ec" stroke-width="4.4" stroke-linecap="round"/><line x1="15" y1="39" x2="27" y2="39" stroke="#d9b48a" stroke-width="4.4" stroke-linecap="round"/></svg></span> yane</div>
+          <div class="item on">📊 Dashboard</div>
+          <div class="item">🏘️ Properties</div>
+          <div class="item">👥 Tenants</div>
+          <div class="item">🎯 Leads</div>
+          <div class="item">💰 Rent Payments</div>
+          <div class="item">📈 Reports</div>
+        </div>
+        <div class="shot-main">
+          <div class="shot-cards">
+            <div class="shot-card"><div class="k">Occupied</div><div class="v">46/48</div></div>
+            <div class="shot-card"><div class="k">Collected</div><div class="v">KSh 812k</div></div>
+            <div class="shot-card"><div class="k">Arrears</div><div class="v">KSh 34k</div></div>
+            <div class="shot-card hl"><div class="k">Open leads</div><div class="v">4</div></div>
+          </div>
+          <div class="shot-board">
+            <div class="t">Lead pipeline</div>
+            <div class="shot-cols">
+              <div class="shot-col"><h5>New</h5><div class="shot-lead"><b>Grace Njeri</b>A5 · bedsitter<span class="badge">Follow up due</span></div></div>
+              <div class="shot-col"><h5>Viewing</h5><div class="shot-lead"><b>Demo Lead</b>B1 · 1-bed</div></div>
+              <div class="shot-col"><h5>Won</h5><div class="shot-lead"><b>Test Person</b>A2 · lease #49</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <img class="hero-fox" src="/assets/fox.png" alt="" aria-hidden="true" loading="lazy">
+</header>
+
+<div class="tear" aria-hidden="true"></div>
+
+<section class="band" data-craft>
+  <div class="wrap band-grid">
+    <div><div class="n">48</div><div class="l">units under management in the demo</div></div>
+    <div><div class="n">95%</div><div class="l">collection rate tracked per month</div></div>
+    <div><div class="n">6</div><div class="l">pipeline stages per lead</div></div>
+    <div><div class="n">0</div><div class="l">spreadsheets needed</div></div>
+  </div>
+</section>
+
+<section class="section" id="features" data-craft>
+  <div class="wrap">
+    <div class="section-head">
+      <img class="hero-hedgehog" src="/assets/hedgehog.png" alt="" aria-hidden="true" loading="lazy">
+      <span class="eyebrow">Everything included</span>
+      <h2>The boring parts of landlording, handled</h2>
+      <p>One system replaces the notebooks, WhatsApp threads and end-of-month panic.</p>
+    </div>
+    <div class="grid">
+      <div class="feat blush"><div class="ico">🏘️</div><h3>Properties &amp; units</h3><p>Every estate, block and unit with live status — occupied, vacant or notice — plus rent per unit at a glance.</p></div>
+      <div class="feat butter"><div class="ico">🎯</div><h3>Lead pipeline</h3><p>Capture enquiries from walk-ins, referrals and ads, then move them new → contacted → viewing → application → won.</p></div>
+      <div class="feat sky"><div class="ico">🚪</div><h3>Tenant onboarding</h3><p>Turn a won lead into a signed lease in one flow: tenant details, deposit, start date and rent schedule.</p></div>
+      <div class="feat butter"><div class="ico">💰</div><h3>Rent payments</h3><p>Record M-Pesa and bank payments, see arrears instantly, and keep a clean receipt trail for every tenant.</p></div>
+      <div class="feat sky"><div class="ico">📅</div><h3>Lease renewals</h3><p>Never miss an expiry — upcoming renewals surface before the tenant does, with notice periods built in.</p></div>
+      <div class="feat blush"><div class="ico">📈</div><h3>Reports</h3><p>Monthly collections, occupancy and arrears reports you can actually act on — not just numbers in a spreadsheet.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pipeline" data-craft style="padding-top: 0;">
+  <div class="wrap split">
+    <div>
+      <h2>Never lose a good tenant to a forgotten follow-up</h2>
+      <p>Most vacancies stay vacant because an enquiry went cold. The pipeline keeps every lead visible with a next-action date, so the follow-up happens before the unit sits empty another month.</p>
+      <ul>
+        <li><span class="tick">✓</span> Every enquiry logged with source — walk-in, referral, signboard, WhatsApp</li>
+        <li><span class="tick">✓</span> Follow-up badges show exactly who to call today</li>
+        <li><span class="tick">✓</span> Full activity timeline per lead: calls, viewings, notes</li>
+        <li><span class="tick">✓</span> One click converts a won lead into a tenant and lease</li>
+      </ul>
+    </div>
+    <div class="split-right">
+      <div class="pipe-mini" aria-hidden="true">
+        <div class="col"><h5>New</h5>
+          <div class="lead"><b>Grace Njeri</b><span>A5 · from Jan</span><span class="badge">Follow up due</span></div>
+        </div>
+        <div class="col"><h5>Application</h5>
+          <div class="lead"><b>Demo Lead</b><span>B1 · docs pending</span></div>
+        </div>
+        <div class="col"><h5>Won</h5>
+          <div class="lead" style="border-left:3px solid #15803d"><b>Test Person</b><span>Onboarded → A2</span></div>
+        </div>
+      </div>
+      <img class="hero-otter" src="/assets/otter.png" alt="" aria-hidden="true" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<section class="section cta-wrap" id="pricing" style="padding-top: 0;" data-craft>
+  <div class="wrap">
+    <img class="hero-badger" src="/assets/badger.png" alt="" aria-hidden="true" loading="lazy">
+    <div class="cta">
+      <h2>Ready to see your whole portfolio on one screen?</h2>
+      <p>Create your account, add a property, and move your first lead across the board today.</p>
+      <a class="btn btn-pop" href="/login">Start free</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div>© 2026 yane · Nairobi, Kenya</div>
+    <div><a href="/login">Sign in</a> · <a href="/landing.html">Home</a></div>
+  </div>
+</footer>
+
+<!-- Squirrel: pops out as you scroll between sections, then hides again -->
+<img class="squirrel-peek" id="squirrel" src="/assets/squirrel.png" alt="" aria-hidden="true" loading="lazy">
+
+<script>
+  (function () {
+    var squirrel = document.getElementById('squirrel')
+    if (!squirrel || !('IntersectionObserver' in window)) return
+    var hideTimer = null
+    function pop() {
+      clearTimeout(hideTimer)
+      squirrel.classList.add('popped', 'pop-wave')
+      hideTimer = setTimeout(function () {
+        squirrel.classList.remove('popped', 'pop-wave')
+      }, 2200)
+    }
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) pop()
+      })
+    }, { rootMargin: '-20% 0px -20% 0px' })
+    document.querySelectorAll('[data-craft]').forEach(function (el) { observer.observe(el) })
+  })()
+</script>
+
+</body>
+</html>
